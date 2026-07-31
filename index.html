@@ -37,15 +37,29 @@
     .btn-camera {
       background-color: #28a745;
       color: white;
-      padding: 10px;
+      padding: 12px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
       width: 100%;
       font-weight: bold;
       margin-bottom: 10px;
+      font-size: 15px;
     }
     .btn-camera:hover { background-color: #218838; }
+    .btn-video {
+      background-color: #dc3545;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+    .btn-video:hover { background-color: #c82333; }
     .file-input-wrapper { margin-top: 10px; }
     .file-list {
       margin-top: 10px;
@@ -92,24 +106,27 @@
       <input type="text" id="folderName" placeholder="Ex: Evento_Ao_Vivo" required>
     </div>
 
+    <!-- Capturar Foto/Vídeo na Hora -->
     <div class="field">
       <label>Capturar com a Câmera:</label>
       <input type="file" id="cameraPhoto" accept="image/*" capture="environment" style="display:none">
       <input type="file" id="cameraVideo" accept="video/*" capture="environment" style="display:none">
       
-      <button class="btn-camera" onclick="document.getElementById('cameraPhoto').click()">📸 Tirar Foto na Hora</button>
-      <button class="btn-camera" style="background-color: #dc3545;" onclick="document.getElementById('cameraVideo').click()">🎥 Gravar Vídeo na Hora</button>
+      <button type="button" class="btn-camera" onclick="document.getElementById('cameraPhoto').click()">📸 Tirar Foto na Hora</button>
+      <button type="button" class="btn-video" onclick="document.getElementById('cameraVideo').click()">🎥 Gravar Vídeo na Hora</button>
     </div>
 
+    <!-- Adicionar Arquivos Existentes -->
     <div class="field file-input-wrapper">
       <label for="fileInput">Ou escolha arquivos salvos:</label>
       <input type="file" id="fileInput" multiple accept="image/*,video/*">
     </div>
 
+    <!-- Lista de Arquivos Selecionados -->
     <label>Arquivos para Enviar (<span id="fileCount">0</span>):</label>
     <ul class="file-list" id="fileList"></ul>
     
-    <button id="submitBtn" class="btn-submit" onclick="uploadFiles()">Enviar para o Drive</button>
+    <button type="button" id="submitBtn" class="btn-submit" onclick="uploadFiles()">Enviar para o Drive</button>
     
     <div id="status"></div>
   </div>
@@ -127,10 +144,10 @@
     function handleFileSelect(event) {
       const files = Array.from(event.target.files);
       
-      // Se for captura de câmera, renomeia com o horário para não sobrescrever
       files.forEach(file => {
-        if (!file.name || file.name === "image.jpg" || file.name === "video.mp4") {
-          const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+        // Renomeia capturas da câmera com timestamp único para não duplicar nomes
+        if (!file.name || file.name === "image.jpg" || file.name === "video.mp4" || file.name.startsWith("input")) {
+          const timestamp = new Date().getTime();
           const ext = file.type.includes("video") ? "mp4" : "jpg";
           const newFile = new File([file], `Captura_${timestamp}.${ext}`, { type: file.type });
           selectedFiles.push(newFile);
@@ -140,7 +157,7 @@
       });
 
       updateFileList();
-      event.target.value = ""; // Limpa para permitir capturar novamente
+      event.target.value = ""; // Reseta o input para permitir nova captura
     }
 
     function updateFileList() {
@@ -151,9 +168,10 @@
 
       selectedFiles.forEach((file, index) => {
         const li = document.createElement('li');
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
         li.innerHTML = `
-          <span>${file.name} (${(file.size / (1024 * 1024)).toFixed(1)} MB)</span>
-          <strong style="color:red; cursor:pointer;" onclick="removeFile(${index})">X</strong>
+          <span>${file.name} (${sizeMb} MB)</span>
+          <strong style="color:#dc3545; cursor:pointer; padding: 2px 6px;" onclick="removeFile(${index})">✕</strong>
         `;
         fileList.appendChild(li);
       });
