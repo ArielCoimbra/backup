@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload de Material - Google Drive</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 480px;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+    h2 {
+      margin-top: 0;
+      color: #333333;
+      font-size: 22px;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .field {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #444444;
+      font-size: 14px;
+    }
+    input[type="text"],
+    input[type="file"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cccccc;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    input[type="text"]:focus,
+    input[type="file"]:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+    button {
+      background-color: #007bff;
+      color: #ffffff;
+      padding: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background-color 0.3s, transform 0.1s;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    button:active {
+      transform: scale(0.99);
+    }
+    #status {
+      margin-top: 20px;
+      font-weight: 600;
+      text-align: center;
+      font-size: 14px;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Enviar Fotos e Vídeos</h2>
+    
+    <div class="field">
+      <label for="folderName">Nome da Subpasta:</label>
+      <input type="text" id="folderName" placeholder="Ex: Material_Julho" required>
+    </div>
+    
+    <div class="field">
+      <label for="fileInput">Selecione Mídias (Fotos e Vídeos):</label>
+      <input type="file" id="fileInput" multiple accept="image/*,video/*" required>
+    </div>
+    
+    <button id="submitBtn" onclick="uploadFiles()">Enviar para o Drive</button>
+    
+    <div id="status"></div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxy4LhscUuH15SfyP0FvQiqJrxZgxOrt10aTAJUCWpVsJ5CYeipLgLFFmtPCia5LvZm/exec";
+
+    async function uploadFiles() {
+      const folderNameInput = document.getElementById('folderName');
+      const fileInput = document.getElementById('fileInput');
+      const submitBtn = document.getElementById('submitBtn');
+      const statusDiv = document.getElementById('status');
+
+      const folderName = folderNameInput.value.trim();
+      const files = Array.from(fileInput.files);
+
+      if (!folderName || files.length === 0) {
+        alert('Por favor, digite o nome da pasta e selecione ao menos um arquivo.');
+        return;
+      }
+
+      // Desabilita o botão para evitar múltiplos envios
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Processando...";
+      statusDiv.style.color = "#333333";
+      statusDiv.innerText = "Carregando arquivos, por favor aguarde...";
+
+      try {
+        const fileDataArray = [];
+
+        for (let file of files) {
+          const base64 = await readFileAsDataURL(file);
+          fileDataArray.push({
+            fileName: file.name,
+            mimeType: file.type,
+            base64: base64
+          });
+        }
+
+        const payload = {
+          folderName: folderName,
+          files: fileDataArray
+        };
+
+        const response = await fetch(SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (result.status === "success") {
+          statusDiv.style.color = "#28a745";
+          statusDiv.innerText = result.message;
+          folderNameInput.value = '';
+          fileInput.value = '';
+        } else {
+          throw new Error(result.message);
+        }
+      } catch (error) {
+        statusDiv.style.color = "#dc3545";
+        statusDiv.innerText = "Erro ao realizar upload: " + error.message;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Enviar para o Drive";
+      }
+    }
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+      });
+    }
+  </script>
+
+</body>
+</html>
