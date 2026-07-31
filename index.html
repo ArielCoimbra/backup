@@ -3,11 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upload de Material - Google Drive</title>
+  <title>Upload & Câmera - Google Drive</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #f4f7f6;
@@ -26,40 +24,50 @@
       border-radius: 12px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
     }
-    h2 {
-      margin-top: 0;
-      color: #333333;
-      font-size: 22px;
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .field {
-      margin-bottom: 20px;
-    }
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #444444;
-      font-size: 14px;
-    }
-    input[type="text"],
-    input[type="file"] {
+    h2 { margin-top: 0; color: #333; font-size: 22px; text-align: center; margin-bottom: 20px; }
+    .field { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; font-size: 14px; }
+    input[type="text"] {
       width: 100%;
       padding: 12px;
-      border: 1px solid #cccccc;
+      border: 1px solid #ccc;
       border-radius: 6px;
       font-size: 14px;
-      transition: border-color 0.3s;
     }
-    input[type="text"]:focus,
-    input[type="file"]:focus {
-      outline: none;
-      border-color: #007bff;
+    .btn-camera {
+      background-color: #28a745;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: bold;
+      margin-bottom: 10px;
     }
-    button {
+    .btn-camera:hover { background-color: #218838; }
+    .file-input-wrapper { margin-top: 10px; }
+    .file-list {
+      margin-top: 10px;
+      padding: 0;
+      list-style: none;
+      max-height: 150px;
+      overflow-y: auto;
+      border: 1px solid #eee;
+      border-radius: 6px;
+    }
+    .file-list li {
+      padding: 8px 12px;
+      background: #fafafa;
+      border-bottom: 1px solid #eee;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    button.btn-submit {
       background-color: #007bff;
-      color: #ffffff;
+      color: white;
       padding: 14px;
       border: none;
       border-radius: 6px;
@@ -67,39 +75,41 @@
       width: 100%;
       font-size: 16px;
       font-weight: bold;
-      transition: background-color 0.3s, transform 0.1s;
+      margin-top: 15px;
     }
-    button:hover {
-      background-color: #0056b3;
-    }
-    button:active {
-      transform: scale(0.99);
-    }
-    #status {
-      margin-top: 20px;
-      font-weight: 600;
-      text-align: center;
-      font-size: 14px;
-      word-break: break-word;
-    }
+    button.btn-submit:hover { background-color: #0056b3; }
+    button:disabled { background-color: #cccccc; cursor: not-allowed; }
+    #status { margin-top: 20px; font-weight: 600; text-align: center; font-size: 14px; word-break: break-word; }
   </style>
 </head>
 <body>
 
   <div class="card">
-    <h2>Enviar Fotos e Vídeos</h2>
+    <h2>Captura & Upload de Mídia</h2>
     
     <div class="field">
       <label for="folderName">Nome da Subpasta:</label>
-      <input type="text" id="folderName" placeholder="Ex: Material_Julho" required>
+      <input type="text" id="folderName" placeholder="Ex: Evento_Ao_Vivo" required>
     </div>
-    
+
     <div class="field">
-      <label for="fileInput">Selecione Mídias (Fotos e Vídeos):</label>
-      <input type="file" id="fileInput" multiple accept="image/*,video/*" required>
+      <label>Capturar com a Câmera:</label>
+      <input type="file" id="cameraPhoto" accept="image/*" capture="environment" style="display:none">
+      <input type="file" id="cameraVideo" accept="video/*" capture="environment" style="display:none">
+      
+      <button class="btn-camera" onclick="document.getElementById('cameraPhoto').click()">📸 Tirar Foto na Hora</button>
+      <button class="btn-camera" style="background-color: #dc3545;" onclick="document.getElementById('cameraVideo').click()">🎥 Gravar Vídeo na Hora</button>
     </div>
+
+    <div class="field file-input-wrapper">
+      <label for="fileInput">Ou escolha arquivos salvos:</label>
+      <input type="file" id="fileInput" multiple accept="image/*,video/*">
+    </div>
+
+    <label>Arquivos para Enviar (<span id="fileCount">0</span>):</label>
+    <ul class="file-list" id="fileList"></ul>
     
-    <button id="submitBtn" onclick="uploadFiles()">Enviar para o Drive</button>
+    <button id="submitBtn" class="btn-submit" onclick="uploadFiles()">Enviar para o Drive</button>
     
     <div id="status"></div>
   </div>
@@ -107,30 +117,74 @@
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxy4LhscUuH15SfyP0FvQiqJrxZgxOrt10aTAJUCWpVsJ5CYeipLgLFFmtPCia5LvZm/exec";
 
+    let selectedFiles = [];
+
+    // Ouve a seleção de arquivos (Câmera ou Galeria)
+    document.getElementById('cameraPhoto').addEventListener('change', handleFileSelect);
+    document.getElementById('cameraVideo').addEventListener('change', handleFileSelect);
+    document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+
+    function handleFileSelect(event) {
+      const files = Array.from(event.target.files);
+      
+      // Se for captura de câmera, renomeia com o horário para não sobrescrever
+      files.forEach(file => {
+        if (!file.name || file.name === "image.jpg" || file.name === "video.mp4") {
+          const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+          const ext = file.type.includes("video") ? "mp4" : "jpg";
+          const newFile = new File([file], `Captura_${timestamp}.${ext}`, { type: file.type });
+          selectedFiles.push(newFile);
+        } else {
+          selectedFiles.push(file);
+        }
+      });
+
+      updateFileList();
+      event.target.value = ""; // Limpa para permitir capturar novamente
+    }
+
+    function updateFileList() {
+      const fileList = document.getElementById('fileList');
+      const fileCount = document.getElementById('fileCount');
+      fileList.innerHTML = "";
+      fileCount.innerText = selectedFiles.length;
+
+      selectedFiles.forEach((file, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <span>${file.name} (${(file.size / (1024 * 1024)).toFixed(1)} MB)</span>
+          <strong style="color:red; cursor:pointer;" onclick="removeFile(${index})">X</strong>
+        `;
+        fileList.appendChild(li);
+      });
+    }
+
+    function removeFile(index) {
+      selectedFiles.splice(index, 1);
+      updateFileList();
+    }
+
     async function uploadFiles() {
       const folderNameInput = document.getElementById('folderName');
-      const fileInput = document.getElementById('fileInput');
       const submitBtn = document.getElementById('submitBtn');
       const statusDiv = document.getElementById('status');
 
       const folderName = folderNameInput.value.trim();
-      const files = Array.from(fileInput.files);
 
-      if (!folderName || files.length === 0) {
-        alert('Por favor, digite o nome da pasta e selecione ao menos um arquivo.');
+      if (!folderName || selectedFiles.length === 0) {
+        alert('Por favor, digite o nome da pasta e capture ou selecione ao menos um arquivo.');
         return;
       }
 
-      // Desabilita o botão para evitar múltiplos envios
       submitBtn.disabled = true;
-      submitBtn.innerText = "Processando...";
-      statusDiv.style.color = "#333333";
-      statusDiv.innerText = "Carregando arquivos, por favor aguarde...";
+      submitBtn.innerText = "Enviando...";
+      statusDiv.style.color = "#333";
+      statusDiv.innerText = "Processando e enviando arquivos...";
 
       try {
         const fileDataArray = [];
 
-        for (let file of files) {
+        for (let file of selectedFiles) {
           const base64 = await readFileAsDataURL(file);
           fileDataArray.push({
             fileName: file.name,
@@ -155,13 +209,14 @@
           statusDiv.style.color = "#28a745";
           statusDiv.innerText = result.message;
           folderNameInput.value = '';
-          fileInput.value = '';
+          selectedFiles = [];
+          updateFileList();
         } else {
           throw new Error(result.message);
         }
       } catch (error) {
         statusDiv.style.color = "#dc3545";
-        statusDiv.innerText = "Erro ao realizar upload: " + error.message;
+        statusDiv.innerText = "Erro no upload: " + error.message;
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerText = "Enviar para o Drive";
