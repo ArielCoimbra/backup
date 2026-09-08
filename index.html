@@ -3,235 +3,293 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ariel Unidas Atacado | Premium Car Stock</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Catálogo de Repasse - Unidas Atacado</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
+    <!-- CryptoJS (SHA-256) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <!-- PapaParse (CSV) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+    <style>
+        body { background-color: #f8fafc; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: #1e293b; }
+        .navbar-brand { font-weight: 800; letter-spacing: -0.5px; }
+        
+        /* Skeleton Loading */
+        .skeleton { background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 8px; }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .skeleton-img { height: 180px; width: 100%; }
+        .skeleton-text { height: 14px; margin-bottom: 8px; width: 80%; }
+        .skeleton-text.short { width: 40%; }
 
-    <link rel="stylesheet" href="style.css">
+        /* Estilo dos Cards */
+        .card-vehicle { background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+        .card-vehicle:hover { transform: translateY(-3px); box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1); }
+        .img-vehicle-wrapper { position: relative; height: 190px; background-color: #0f172a; overflow: hidden; }
+        .img-vehicle { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* Tags dos Veículos */
+        .tag-status { position: absolute; top: 10px; left: 10px; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tag-status-disponivel { background-color: rgba(16, 185, 129, 0.9); color: #fff; }
+        .tag-status-vendido { background-color: rgba(239, 68, 68, 0.9); color: #fff; }
+        
+        .tag-feature { position: absolute; top: 10px; right: 10px; padding: 3px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 700; }
+        .tag-feature-novidade { background-color: #3b82f6; color: #fff; }
+        .tag-feature-baixou { background-color: #f59e0b; color: #fff; }
+        .tag-feature-laudo { background-color: #059669; color: #fff; top: 36px; }
+
+        .card-vehicle-body { padding: 14px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .vehicle-title { font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+        
+        .specs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+        .spec-pill { background-color: #f1f5f9; padding: 4px 8px; border-radius: 6px; font-size: 0.72rem; color: #475569; }
+        .spec-pill span { font-weight: 600; display: block; font-size: 0.62rem; color: #94a3b8; text-transform: uppercase; }
+
+        .price-container { border-top: 1px solid #f1f5f9; padding-top: 10px; }
+        .price-label { font-size: 0.65rem; color: #64748b; font-weight: 700; text-transform: uppercase; display: block; }
+        .price-value { font-size: 1.1rem; font-weight: 800; color: #1e3a8a; }
+
+        /* Filtros */
+        .btn-filter-pill { border-radius: 20px; font-size: 0.8rem; font-weight: 600; padding: 6px 14px; border: 1px solid #cbd5e1; background: #fff; color: #475569; }
+        .btn-filter-pill.active { background-color: #1e3a8a; color: #fff; border-color: #1e3a8a; }
+        .active-margem { background-color: #059669 !important; color: #fff !important; border-color: #059669 !important; }
+
+        /* Letreiro / Ticker */
+        .ticker-wrap { width: 100%; overflow: hidden; background: #0f172a; color: #fff; padding: 8px 0; font-size: 0.82rem; }
+        .ticker-move { display: inline-block; white-space: nowrap; animation: ticker 35s linear infinite; }
+        .ticker-move:hover { animation-play-state: paused; }
+        .item-ticker { display: inline-block; margin-right: 30px; cursor: pointer; }
+        @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-50%, 0, 0); } }
+
+        .modal-carousel-img { width: 100%; height: 280px; object-fit: cover; border-radius: 12px; }
+    </style>
 </head>
 <body>
 
-    <div class="faixa-novidades-container" id="faixa-letreiro-container" style="display: none;">
-        <div class="faixa-novidades-wrapper" id="faixa-letreiro-conteudo"></div>
-    </div>
-
-    <nav class="navbar-premium">
-        <div class="container d-flex justify-content-between align-items-center px-3">
-            <span class="navbar-brand-title" onclick="window.location.reload()">ARIEL UNIDAS</span>
-            <button class="btn btn-link text-dark p-0 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuLateral">
-                <i class="bi bi-list fs-2"></i>
+    <!-- Header / Navbar -->
+    <nav class="navbar navbar-dark bg-dark sticky-top shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+                <i class="bi bi-car-front-fill text-warning fs-4"></i>
+                <span>UNIDAS <span class="text-warning">ATACADO</span></span>
+            </a>
+            <button class="btn btn-outline-light btn-sm border-0" onclick="abrirModalOpcoesAdmin()" title="Opções Administrativas">
+                <i class="bi bi-three-dots-vertical fs-5"></i>
             </button>
         </div>
     </nav>
 
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="menuLateral">
-        <div class="offcanvas-header d-flex justify-content-between align-items-center">
-            <h5 class="offcanvas-title fs-5">Navegação</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
-        </div>
-        <div class="offcanvas-body">
-            <div class="d-flex flex-column h-100 justify-content-between">
-                <div>
-                    <a href="#" class="menu-link-item active-item" data-bs-dismiss="offcanvas"><i class="bi bi-car-front-fill"></i> Estoque Completo</a>
-                    <a href="javascript:void(0)" class="menu-link-item" onclick="setTimeout(abrirModalLoja, 400)" data-bs-dismiss="offcanvas"><i class="bi bi-shop"></i> Área do Cliente (Modo Loja)</a>
-                    <a href="javascript:void(0)" class="menu-link-item" onclick="setTimeout(abrirModalEndereco, 400)" data-bs-dismiss="offcanvas"><i class="bi bi-geo-alt-fill"></i> Localização da Loja</a>
-                </div>
-                <div class="pt-3 border-top border-secondary">
-                    <p class="small text-white-50 mb-2 text-center">Atendimento Direto</p>
-                    <a href="https://wa.me/5551986597751" target="_blank" class="btn btn-success w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2">
-                        <i class="bi bi-whatsapp"></i> WhatsApp Geral
-                    </a>
-                </div>
-            </div>
+    <!-- Faixa de Banner Destaque -->
+    <div id="box-banner-destaque" class="bg-primary text-white py-2 text-center" style="display: none;">
+        <div class="container d-flex flex-wrap align-items-center justify-content-center gap-2">
+            <span id="texto-banner-destaque" class="fw-semibold small"></span>
+            <div id="container-botao-banner"></div>
         </div>
     </div>
 
-    <div class="container mb-3 px-3" style="max-width: 600px;">
-        <div class="search-wrapper d-flex align-items-center mb-2">
-            <i class="bi bi-search text-muted ms-2 fs-6"></i>
-            <input type="text" id="campo-pesquisa" class="search-input" placeholder="Buscar marca, modelo, cor ou placa...">
-        </div>
-        
-        <div class="row g-2">
-            <div class="col-12">
-                <select id="filtro-preco" class="form-select select-premium-filtro">
-                    <option value="todos">Todas as faixas de preço</option>
+    <!-- Letreiro Ticker (Novidades) -->
+    <div id="faixa-letreiro-container" class="ticker-wrap" style="display: none;">
+        <div id="faixa-letreiro-conteudo" class="ticker-move"></div>
+    </div>
+
+    <!-- Filtros e Busca -->
+    <div class="container my-4">
+        <div class="row g-2 align-items-center mb-3">
+            <div class="col-12 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" id="campo-pesquisa" class="form-control border-start-0 ps-0" placeholder="Buscar por modelo, cor ou placa...">
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <select id="filtro-preco" class="form-select text-secondary font-semibold" style="font-size: 0.85rem;">
+                    <option value="todos">Todos os Preços</option>
                     <option value="ate-50k">Até R$ 50.000</option>
                     <option value="50k-80k">R$ 50.000 a R$ 80.000</option>
                     <option value="acima-80k">Acima de R$ 80.000</option>
                 </select>
             </div>
-        </div>
-    </div>
-
-    <div class="container mb-3 px-3">
-        <div id="box-banner-destaque" class="banner-premium" style="display: none;">
-            <div class="row align-items-center g-3">
-                <div class="col-12 col-md-8 text-center text-md-start">
-                    <span class="badge bg-warning text-dark fw-bold mb-2 px-3 py-1.5 rounded-pill text-uppercase" style="font-size:0.65rem;">Comunicado</span>
-                    <h5 class="fw-bold mb-1" id="texto-banner-destaque">Carregando informações...</h5>
-                </div>
-                <div class="col-12 col-md-4 text-center text-md-end" id="container-botao-banner"></div>
+            <div class="col-6 col-md-3">
+                <button class="btn btn-filter-pill btn-margem-toggle w-100" type="button">
+                    <i class="bi bi-graph-up-arrow"></i> Maior Margem
+                </button>
             </div>
         </div>
-    </div>
 
-    <div class="container mb-2 px-3">
-        <div class="filter-grid-container">
-            <button class="btn-filter-pill active" data-cat="todos"><i class="bi bi-grid-fill"></i> Todos</button>
-            <button class="btn-filter-pill text-warning border-warning-subtle" data-cat="novidades">✨ Novidades</button>
-            <button class="btn-filter-pill text-danger border-danger-subtle" data-cat="baixou">🔥 Baixou</button>
-            <button class="btn-filter-pill" data-cat="hatch">Hatch</button>
-            <button class="btn-filter-pill" data-cat="sedan">Sedan</button>
-            <button class="btn-filter-pill" data-cat="suv">SUV</button>
-            <button class="btn-filter-pill" data-cat="picape">🛻 Picape</button>
-            <button class="btn-filter-pill btn-margem-toggle">💰 Melhor Margem</button>
+        <!-- Carrocerias / Categorias -->
+        <div class="d-flex gap-2 overflow-x-auto pb-2 mb-2">
+            <button class="btn btn-filter-pill active" data-cat="todos">Todos</button>
+            <button class="btn btn-filter-pill" data-cat="novidades">✨ Novidades</button>
+            <button class="btn btn-filter-pill" data-cat="baixou">🔥 Baixou Preço</button>
+            <button class="btn btn-filter-pill" data-cat="hatch">Hatch</button>
+            <button class="btn btn-filter-pill" data-cat="sedan">Sedan</button>
+            <button class="btn btn-filter-pill" data-cat="suv">SUV</button>
+            <button class="btn btn-filter-pill" data-cat="picape">Picape</button>
         </div>
-        <div class="text-end px-1 mt-1">
-            <span id="contador-veiculos" class="text-muted" style="font-size: 0.75rem; font-weight: 600;">Carregando quantidade...</span>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span id="contador-veiculos" class="text-muted small fw-semibold">Carregando estoque...</span>
+        </div>
+
+        <!-- Grid de Veículos -->
+        <div id="lista-carros" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+            <!-- Os cards serão injetados via JavaScript -->
         </div>
     </div>
 
-    <div class="container mb-5 px-2">
-        <div id="lista-carros" class="row row-cols-2 row-cols-md-2 row-cols-lg-3 g-2 g-md-4"></div>
-    </div>
-
+    <!-- Modal 3 Pontinhos: Opções de Administração (Modo Loja & Postar) -->
     <div class="modal fade" id="modalLoja" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered mx-3">
-            <div class="modal-content">
-                <div class="modal-header border-0 p-4 pb-2">
-                    <h5 class="modal-title fw-bold fs-5"><i class="bi bi-shop text-warning"></i> Modo Loja Ativo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4 text-center">
-                    <div id="etapa-loja-senha">
-                        <p class="text-muted small mb-3">Insira o código de segurança para revelar informações internas:</p>
-                        <input type="password" id="input-loja-senha" class="form-control loja-input-style mb-3" placeholder="••••">
-                        <button class="btn btn-premium-action w-100 py-2 fs-6" id="btn-autenticar-loja">Autenticar Acesso</button>
-                    </div>
-
-                    <div id="etapa-loja-placa" style="display: none;">
-                        <div class="d-flex justify-content-between align-items-center alert alert-secondary small py-2 mb-3 rounded-3">
-                            <span class="fw-bold" style="font-size:0.75rem;"><i class="bi bi-shield-check text-success"></i> Conectado</span>
-                            <button class="btn btn-link p-0 text-danger fw-bold text-decoration-none" style="font-size: 0.75rem;" id="btn-desconectar-loja">Desconectar</button>
-                        </div>
-                        <p class="text-muted small mb-3">Busque o veículo instantaneamente pela placa do pátio:</p>
-                        <input type="text" id="input-loja-placa" class="form-control loja-input-style text-uppercase mb-3" placeholder="ABC1D23" maxlength="7">
-                        <button class="btn btn-success fw-bold w-100 py-2 rounded-3" id="btn-consultar-placa">Consultar Dados</button>
-                        <div id="resultado-busca-loja" class="mt-3"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="modalDetalhes" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered m-0 m-sm-auto">
-            <div class="modal-content rounded-0 rounded-sm-4">
-                <button type="button" class="btn-close botao-fechar-modal-mestre" data-bs-dismiss="modal"></button>
-                <div class="modal-body p-0">
-                    <div id="carrosselVeiculo" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-inner" id="modalFotosContainer"></div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carrosselVeiculo" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon bg-dark rounded-circle" aria-hidden="true"></span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carrosselVeiculo" data-bs-slide="next">
-                            <span class="carousel-control-next-icon bg-dark rounded-circle" aria-hidden="true"></span>
-                        </button>
-                    </div>
-                    
-                    <div class="p-3 p-md-5">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h4 class="fw-extrabold text-dark m-0" id="modalModelo">Modelo</h4>
-                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1" id="btn-compartilhar-nativo" style="font-size: 0.75rem; font-weight:700;">
-                                <i class="bi bi-share-fill"></i> Enviar Ficha
-                            </button>
-                        </div>
-                        
-                        <div class="row g-2 text-center mb-3">
-                            <div class="col-4">
-                                <div class="bg-light p-2 rounded-3">
-                                    <span class="text-muted d-block mb-1 font-weight-bold" style="font-size:0.6rem;">REPASSE</span>
-                                    <span class="fw-bold text-primary" style="font-size:0.95rem;" id="modalValor">R$ --</span>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="bg-light p-2 rounded-3">
-                                    <span class="text-muted d-block mb-1 font-weight-bold" style="font-size:0.6rem;">MARGEM</span>
-                                    <span class="fw-bold text-success" style="font-size:0.95rem;" id="modalMargem">R$ --</span>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="bg-light p-2 rounded-3">
-                                    <span class="text-muted d-block mb-1 font-weight-bold" style="font-size:0.6rem;">FIPE</span>
-                                    <span class="fw-bold text-secondary" style="font-size:0.95rem;" id="modalFipe">R$ --</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="specs-grid mb-3">
-                            <div class="spec-pill"><span>Placa</span><div id="modalPlaca">--</div></div>
-                            <div class="spec-pill"><span>Cor</span><div id="modalCor" class="text-truncate">--</div></div>
-                            <div class="spec-pill"><span>Quilometragem</span><div id="modalKm">--</div></div>
-                            <div class="spec-pill"><span>Categoria</span><div id="modalCarroceria" class="text-capitalize">--</div></div>
-                        </div>
-
-                        <div id="modalLaudoContainer" class="mb-3"></div>
-
-                        <div class="mb-2">
-                            <h6 class="fw-bold text-dark mb-1" style="font-size:0.85rem;"><i class="bi bi-chat-left-text-fill text-muted me-1"></i> Observações Técnicas:</h6>
-                            <div class="p-3 bg-light rounded-3 text-secondary border-start border-primary border-3" style="font-size:0.85rem;" id="modalDescricao">--</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer border-0 p-3 bg-light d-flex justify-content-between rounded-0 rounded-bottom-sm-4">
-                    <button type="button" class="btn btn-outline-secondary rounded-3 px-3 btn-sm" data-bs-dismiss="modal">Fechar</button>
-                    <div id="modalBotaoWppContainer" style="width: 65%;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="modalEndereco" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered mx-3">
-            <div class="modal-content">
-                <div class="modal-header border-0 p-4 pb-0">
-                    <h5 class="modal-title fw-bold fs-5"><i class="bi bi-geo-alt-fill text-danger"></i> Onde Estamos</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header bg-dark text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold fs-6"><i class="bi bi-shield-lock-fill"></i> Painel Administrativo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <div class="p-3 bg-light rounded-4 border-start border-primary border-4 mb-3">
-                        <h6 class="fw-bold text-dark mb-1" style="font-size:0.9rem;">Unidas Atacado Porto Alegre</h6>
-                        <p class="mb-2 fw-bold text-dark" style="font-size:1rem;">Av. Sertório, 5686 - Sarandi, Porto Alegre - RS</p>
-                        <p class="mb-0 text-muted" style="font-size: 0.75rem;"><i class="bi bi-exclamation-circle-fill text-warning"></i> Importante: Ao chegar no pátio, solicite atendimento exclusivo com o vendedor <strong>Ariel Coimbra</strong>.</p>
-                    </div>
-                    <div class="p-3 bg-light rounded-4 text-center">
-                        <span class="text-muted small d-block mb-1">Contato Direto via WhatsApp:</span>
-                        <a href="https://wa.me/5551986597751" target="_blank" class="fw-bold fs-5 text-success text-decoration-none"><i class="bi bi-whatsapp"></i> (51) 98659-7751</a>
+                    <!-- Nav Tabs para Modos -->
+                    <ul class="nav nav-pills nav-justified mb-3" id="adminTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active fw-bold small" id="tab-loja-btn" data-bs-toggle="pill" data-bs-target="#tab-loja" type="button">🏪 Modo Loja</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold small" id="tab-postar-btn" data-bs-toggle="pill" data-bs-target="#tab-postar" type="button">📢 Modo Postar</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="adminTabsContent">
+                        <!-- Conteúdo Modo Loja -->
+                        <div class="tab-pane fade show active" id="tab-loja" role="tabpanel">
+                            <div id="etapa-loja-senha">
+                                <label class="form-label small fw-bold">Digite a Senha do Modo Loja:</label>
+                                <input type="password" id="input-loja-senha" class="form-control mb-2" placeholder="Senha mestre...">
+                                <button class="btn btn-dark w-100 fw-bold btn-sm rounded-3 py-2" id="btn-autenticar-loja">Acessar Modo Loja</button>
+                            </div>
+                            <div id="etapa-loja-placa" style="display: none;">
+                                <div class="alert alert-success py-2 small">✓ Modo Loja Ativo</div>
+                                <label class="form-label small fw-bold">Buscar Placa Completa:</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" id="input-loja-placa" class="form-control text-uppercase" placeholder="Ex: ABC1D23">
+                                    <button class="btn btn-primary" id="btn-consultar-placa"><i class="bi bi-search"></i></button>
+                                </div>
+                                <div id="resultado-busca-loja"></div>
+                                <hr>
+                                <button class="btn btn-outline-danger w-100 btn-sm rounded-3" id="btn-desconectar-loja">Sair do Modo Loja</button>
+                            </div>
+                        </div>
+
+                        <!-- Conteúdo Modo Postar -->
+                        <div class="tab-pane fade" id="tab-postar" role="tabpanel">
+                            <div id="etapa-postar-senha">
+                                <label class="form-label small fw-bold">Digite a Senha de Postagem:</label>
+                                <input type="password" id="input-postar-senha" class="form-control mb-2" placeholder="Senha da Coluna U...">
+                                <button class="btn btn-success w-100 fw-bold btn-sm rounded-3 py-2" onclick="verificarSenhaPostar()">Ativar Botões de Postar</button>
+                            </div>
+                            <div id="etapa-postar-ativo" style="display: none;">
+                                <div class="alert alert-success py-2 small">✓ Modo Postar Ativado! Os botões "Postar" estão visíveis nos cards.</div>
+                                <button class="btn btn-outline-danger w-100 btn-sm rounded-3" onclick="desativarModoPostar()">Desativar Modo Postar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="videoModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center; flex-direction:column;">
-        <button onclick="fecharVideo()" style="position:absolute; top:20px; left:20px; background:#f0c040; color:#000; border:none; padding:10px 20px; border-radius:25px; font-weight:bold; cursor:pointer;">
-            ← Voltar para o site
-        </button>
-        <div style="width:90%; max-width:800px; height:60vh;">
-            <iframe id="videoPlayer" src="" style="width:100%; height:100%; border:none; border-radius:12px;" allowfullscreen></iframe>
+    <!-- Modal Gerador de Oferta WhatsApp -->
+    <div class="modal fade" id="modalGeradorPost" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header bg-dark text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold fs-6"><i class="bi bi-whatsapp text-success"></i> Gerador de Oferta WhatsApp</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Frase Personalizada do Topo (Opcional):</label>
+                        <input type="text" id="postFraseTopo" class="form-control form-control-sm" placeholder="Ex: Fala cliente! Dá uma olhada nessa oportunidade:" oninput="atualizarTextoGerado()">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Destaque da Mensagem:</label>
+                        <div class="d-flex gap-2">
+                            <button id="btn-tag-sem" class="btn btn-sm btn-primary btn-tag-post flex-fill" onclick="selecionarTagPost('', this)">Sem Destaque</button>
+                            <button class="btn btn-sm btn-outline-secondary btn-tag-post flex-fill" onclick="selecionarTagPost('⭐ NOVIDADE NA ÁREA! ⭐\n\n', this)">⭐ Novidade</button>
+                            <button class="btn btn-sm btn-outline-secondary btn-tag-post flex-fill" onclick="selecionarTagPost('🔥 BAIXOU DE PREÇO! 🔥\n\n', this)">🔥 Baixou</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Mensagem Formatada:</label>
+                        <div id="textoPostPronto" class="p-3 bg-light border rounded-3 text-start font-monospace small" style="white-space: pre-wrap;"></div>
+                    </div>
+
+                    <button class="btn btn-success w-100 fw-bold py-2 rounded-3" onclick="copiarTextoPost()">
+                        <i class="bi bi-clipboard-check-fill"></i> Copiar para o WhatsApp
+                    </button>
+                    <div id="notificacaoPost" class="text-success text-center fw-bold small mt-2"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="app.js?v=2.0"></script>
+    <!-- Modal Detalhes do Veículo -->
+    <div class="modal fade" id="modalDetalhes" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-dark" id="modalModelo">Modelo do Carro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-7">
+                            <div id="carouselFotos" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner" id="modalFotosContainer"></div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselFotos" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carouselFotos" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-5 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="bg-light p-3 rounded-3 mb-3">
+                                    <span class="text-muted small d-block">VALOR DE REPASSE</span>
+                                    <h3 class="fw-extrabold text-primary m-0" id="modalValor">R$ 00.000</h3>
+                                    <div class="d-flex justify-content-between mt-2 small">
+                                        <span>FIPE: <strong id="modalFipe">R$ 00.000</strong></span>
+                                        <span class="text-success">Margem: <strong id="modalMargem">R$ 00.000</strong></span>
+                                    </div>
+                                </div>
+                                <ul class="list-group list-group-flush small mb-3">
+                                    <li class="list-group-item d-flex justify-content-between px-0"><span>Placa:</span> <strong id="modalPlaca">*****00</strong></li>
+                                    <li class="list-group-item d-flex justify-content-between px-0"><span>Cor:</span> <strong id="modalCor">N/I</strong></li>
+                                    <li class="list-group-item d-flex justify-content-between px-0"><span>Quilometragem:</span> <strong id="modalKm">N/I</strong></li>
+                                    <li class="list-group-item d-flex justify-content-between px-0"><span>Carroceria:</span> <strong id="modalCarroceria">N/I</strong></li>
+                                </ul>
+                                <p id="modalDescricao" class="text-muted small mb-3"></p>
+                            </div>
+                            <div>
+                                <div id="modalLaudoContainer" class="mb-2"></div>
+                                <div class="d-flex gap-2">
+                                    <button id="btn-compartilhar-nativo" class="btn btn-outline-secondary w-50 py-2 rounded-3 small fw-bold">
+                                        <i class="bi bi-share"></i> Ficha
+                                    </button>
+                                    <div id="modalBotaoWppContainer" class="w-50"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts Bootstrap e Aplicação -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
