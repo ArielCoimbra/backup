@@ -1,4 +1,4 @@
-// URL de Exportação de Dados
+// URL de Exportação de Dados da Planilha do Google
 const urlPlanilha = 'https://docs.google.com/spreadsheets/d/1xzN1JBC-5Li7csrGOTDq_wADj0AOAafVfCtVYeo99eI/export?format=csv&gid=0';
 
 // Estados Globais da Aplicação
@@ -8,7 +8,14 @@ let categoriaAtiva = 'todos';
 let filtroPrecoAtivo = 'todos';
 let ordenarPorMargemAtivo = false;
 let termoPesquisa = '';
-let hashSenhaMestre = ''; 
+
+// Variáveis para Hashes de Autenticação
+let hashSenhaMestre = ''; // Coluna L, Linha 3 (Modo Loja)
+let hashSenhaPostar = ''; // Coluna U, Linha 2 (Modo Postar)
+
+// Variavel do Carro em Foco para o Gerador de Post
+let carroSelecionadoParaPost = null;
+let tagPostSelecionada = "";
 
 // Paginação / Infinite Scroll Configurações
 let itensExibidosAtualmente = 0;
@@ -64,7 +71,7 @@ function exibirSkeletonsIniciais() {
     const container = document.getElementById('lista-carros');
     if (!container) return;
     let htmlSkeleton = '';
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 8; i++) {
         htmlSkeleton += `
             <div class="col">
                 <div class="card border-0 bg-white p-2 rounded-4 shadow-sm" style="height: 260px;">
@@ -110,7 +117,15 @@ function parsearDadosPlanilha(textoCsv) {
                 fraseDestaque = lines[1][11].trim();
             }
 
-            // Busca por Link do WhatsApp
+            // Leitura da Senha de Postar (Linha 2, Coluna U / índice 20)
+            if (lines.length > 1 && lines[1] && lines[1][20]) {
+                const valU2 = lines[1][20].trim();
+                if (valU2 !== "") {
+                    hashSenhaPostar = CryptoJS.SHA256(valU2).toString();
+                }
+            }
+
+            // Busca por Link do WhatsApp nas primeiras linhas
             for (let r = 0; r < Math.min(lines.length, 5); r++) {
                 for (let c = 0; c < lines[r].length; c++) {
                     const celula = lines[r][c] ? lines[r][c].trim() : '';
@@ -122,7 +137,7 @@ function parsearDadosPlanilha(textoCsv) {
                 if (linkGrupoWpp) break;
             }
 
-            // Busca pela Senha Mestre (Linha 3, Coluna L)
+            // Busca pela Senha Mestre do Modo Loja (Linha 3, Coluna L / índice 11)
             if (lines.length > 2 && lines[2] && lines[2][11]) {
                 const valL3 = lines[2][11].trim();
                 if (!valL3.startsWith('http')) {
@@ -150,18 +165,19 @@ function parsearDadosPlanilha(textoCsv) {
                 let linkVideoInput = (linha.length > 10 && linha[10] && linha[10].trim().startsWith('http')) ? linha[10].trim() : '';
                 let linkLaudoInput = (linha.length > 12 && linha[12] && linha[12].trim().startsWith('http')) ? linha[12].trim() : '';
 
+                // Mapeamento Direto das Colunas A até H
                 const carro = {
                     id: index,
-                    placaReal: linha[0] ? linha[0].toUpperCase().trim() : 'N/I',
+                    placaReal: linha[0] ? linha[0].toUpperCase().trim() : 'N/I', // Coluna A
                     placa: linha[0] ? '*****' + linha[0].trim().slice(-2) : 'N/I',
-                    modelo: modeloTexto.replace(/novidade/i, '').replace(/baixou o preco/i, '').replace(/baixou/i, '').trim(),
-                    cor: linha[2] || 'N/I',
-                    km: formatarKM(linha[3]),
-                    fipe: linha[4] || 'N/A',
-                    valor: linha[5] || 'N/A',
+                    modelo: modeloTexto.replace(/novidade/i, '').replace(/baixou o preco/i, '').replace(/baixou/i, '').trim(), // Coluna B
+                    cor: linha[2] || 'N/I', // Coluna C
+                    km: formatarKM(linha[3]), // Coluna D
+                    fipe: linha[4] || 'N/A', // Coluna E
+                    valor: linha[5] || 'N/A', // Coluna F
                     valorNumerico: converterPrecoParaNumero(linha[5]),
-                    margem: linha[6] || 'N/I',
-                    status: txtStatusH,
+                    margem: linha[6] || 'N/I', // Coluna G
+                    status: txtStatusH, // Coluna H
                     fotoCapa: linha[8] ? linha[8].trim() : '',
                     fotosCarrossel: linha[9] || '',
                     videoUrl: linkVideoInput,
@@ -222,7 +238,7 @@ function gerenciarBannerDestaque(frase, link) {
         
         if (containerBotao) {
             containerBotao.innerHTML = (link && link.startsWith('http')) ? `
-                <a href="${link}" target="_blank" rel="noopener noreferrer" class="btn btn-warning btn-sm fw-bold px-4 py-2 rounded-pill shadow-sm text-dark d-inline-flex align-items-center gap-2">
+                <a href="${link}" target="_blank" rel="noopener noreferrer" class="btn btn-warning btn-sm fw-bold px-3 py-1 rounded-pill shadow-sm text-dark d-inline-flex align-items-center gap-1">
                     <i class="bi bi-whatsapp fs-6"></i> Entrar no Grupo
                 </a>` : '';
         }
@@ -231,7 +247,7 @@ function gerenciarBannerDestaque(frase, link) {
         if (elTexto) elTexto.innerText = "Entre no nosso grupo oficial do WhatsApp!";
         if (containerBotao) {
             containerBotao.innerHTML = `
-                <a href="${link}" target="_blank" rel="noopener noreferrer" class="btn btn-warning btn-sm fw-bold px-4 py-2 rounded-pill shadow-sm text-dark d-inline-flex align-items-center gap-2">
+                <a href="${link}" target="_blank" rel="noopener noreferrer" class="btn btn-warning btn-sm fw-bold px-3 py-1 rounded-pill shadow-sm text-dark d-inline-flex align-items-center gap-1">
                     <i class="bi bi-whatsapp fs-6"></i> Entrar no Grupo
                 </a>`;
         }
@@ -308,6 +324,9 @@ function renderizarProximoBloco() {
     if (!container) return;
     const limite = Math.min(itensExibidosAtualmente + tamanhoDoBlocoPagina, listaFiltradaGlobal.length);
 
+    // Verifica se a sessão do modo postar está ativa
+    const modoPostarAtivo = localStorage.getItem('modoPostarPermitido') === 'true';
+
     for (let i = itensExibidosAtualmente; i < limite; i++) {
         const carro = listaFiltradaGlobal[i];
         const esVendido = carro.status.includes('vendido');
@@ -320,6 +339,13 @@ function renderizarProximoBloco() {
         const badgeBaixou = (carro.baixouPreco && !esVendido) ? `<span class="tag-feature tag-feature-baixou">🔥 BAIXOU</span>` : '';
         const badgeVideo = (carro.videoUrl && !esVendido) ? `<span class="tag-feature" style="background:#dc2626; color:#fff;"><i class="bi bi-play-btn-fill"></i> VÍDEO</span>` : '';
         const badgeLaudo = (carro.laudoUrl && !esVendido) ? `<span class="tag-feature tag-feature-laudo"><i class="bi bi-file-earmark-check-fill"></i> LAUDO OK</span>` : '';
+
+        // Botão "Postar" visível apenas se o modo postar estiver ativo
+        const btnPostarHtml = modoPostarAtivo ? `
+            <button class="btn btn-sm btn-success rounded-pill fw-bold px-2 py-1 small" onclick="event.stopPropagation(); abrirModalGeradorPost(${carro.id})">
+                <i class="bi bi-share-fill"></i> Postar
+            </button>
+        ` : '';
 
         const cardHtml = `
             <div class="col animation-fade-in" onclick="abrirModalDetalhesDirect(${carro.id})">
@@ -339,9 +365,12 @@ function renderizarProximoBloco() {
                                 <div class="spec-pill text-truncate"><span>Margem</span><span class="text-success fw-bold p-0 m-0" style="font-size:0.68rem;">${carro.margem}</span></div>
                             </div>
                         </div>
-                        <div class="price-container">
+                        <div class="price-container d-flex align-items-center justify-content-between mt-2">
                             <div><span class="price-label">REPASSE</span><span class="price-value">${carro.valor}</span></div>
-                            <span class="btn btn-sm btn-outline-dark rounded-pill btn-acessar-card fw-bold">Ver</span>
+                            <div class="d-flex gap-1">
+                                ${btnPostarHtml}
+                                <span class="btn btn-sm btn-outline-dark rounded-pill btn-acessar-card fw-bold">Ver</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -384,7 +413,6 @@ function abrirModalDetalhesDirect(idCarro) {
     const containerLaudo = document.getElementById('modalLaudoContainer');
     if (containerLaudo) {
         let htmlBotoes = '';
-        
         if (carro.videoUrl && carro.videoUrl !== '') {
             htmlBotoes += `
                 <a href="${carro.videoUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-danger btn-sm w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm mb-2" style="background-color:#dc2626; border:none;">
@@ -392,7 +420,6 @@ function abrirModalDetalhesDirect(idCarro) {
                 </a>
             `;
         }
-
         if (carro.laudoUrl && carro.laudoUrl !== '') {
             htmlBotoes += `
                 <a href="${carro.laudoUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background-color:#1e3a8a; border:none;">
@@ -444,19 +471,27 @@ function abrirModalDetalhesDirect(idCarro) {
     new bootstrap.Modal(document.getElementById('modalDetalhes')).show();
 }
 
-function abrirModalLoja() {
+// Funções do Menu Administrativo (3 Pontinhos)
+function abrirModalOpcoesAdmin() {
     document.getElementById('input-loja-senha').value = '';
+    document.getElementById('input-postar-senha').value = '';
     document.getElementById('input-loja-placa').value = '';
     document.getElementById('resultado-busca-loja').innerHTML = '';
-    const permitido = localStorage.getItem('modoLojaPermitido') === 'true';
-    document.getElementById('etapa-loja-senha').style.display = permitido ? 'none' : 'block';
-    document.getElementById('etapa-loja-placa').style.display = permitido ? 'block' : 'none';
+
+    const lojaPermitida = localStorage.getItem('modoLojaPermitido') === 'true';
+    document.getElementById('etapa-loja-senha').style.display = lojaPermitida ? 'none' : 'block';
+    document.getElementById('etapa-loja-placa').style.display = lojaPermitida ? 'block' : 'none';
+
+    const postarPermitido = localStorage.getItem('modoPostarPermitido') === 'true';
+    document.getElementById('etapa-postar-senha').style.display = postarPermitido ? 'none' : 'block';
+    document.getElementById('etapa-postar-ativo').style.display = postarPermitido ? 'block' : 'none';
+
     new bootstrap.Modal(document.getElementById('modalLoja')).show();
 }
 
 function verificarSenhaLoja() {
     const digitada = document.getElementById('input-loja-senha').value.trim();
-    if(!digitada) return alert('Digite a senha!');
+    if (!digitada) return alert('Digite a senha!');
     
     const hashDigitado = CryptoJS.SHA256(digitada).toString();
     if (hashDigitado === hashSenhaMestre) {
@@ -478,10 +513,10 @@ function sairModoLoja() {
 function buscarCarroPorPlacaLoja() {
     const placaBuscada = document.getElementById('input-loja-placa').value.toUpperCase().trim();
     const divResultado = document.getElementById('resultado-busca-loja');
-    if(!placaBuscada) return alert('Insira a placa para pesquisa.');
+    if (!placaBuscada) return alert('Insira a placa para pesquisa.');
 
     const carro = todosOsCarros.find(c => c.placaReal === placaBuscada);
-    if(carro) {
+    if (carro) {
         divResultado.innerHTML = `
             <div class="card border-0 text-start rounded-4 shadow-sm bg-light">
                 <div class="card-body p-3">
@@ -489,7 +524,7 @@ function buscarCarroPorPlacaLoja() {
                     <p class="mb-1 small"><strong>Placa:</strong> <span class="badge bg-dark rounded-2">${carro.placaReal}</span></p>
                     <p class="mb-1 small"><strong>Margem:</strong> <span class="text-success fw-bold">${carro.margem}</span></p>
                     <p class="mb-3 small"><strong>Lote:</strong> <span class="text-primary fw-bold">${carro.valor}</span></p>
-                    <button class="btn btn-premium-action w-100 btn-sm" onclick="fecharLojaEVerCarroDireto(${carro.id})">Visualizar Fotos</button>
+                    <button class="btn btn-dark w-100 btn-sm" onclick="fecharLojaEVerCarroDireto(${carro.id})">Visualizar Fotos</button>
                 </div>
             </div>
         `;
@@ -505,9 +540,91 @@ function fecharLojaEVerCarroDireto(idCarro) {
     document.getElementById('modalPlaca').innerHTML = `<span class="badge bg-warning text-dark px-2 py-1 fw-bold">${carro.placaReal}</span>`;
 }
 
-function abrirModalEndereco() {
-    const modalElemento = document.getElementById('modalEndereco');
-    if (modalElemento) {
-        new bootstrap.Modal(modalElemento).show();
+// Funções do Modo Postar (Senha da Coluna U, Linha 2)
+function verificarSenhaPostar() {
+    const digitada = document.getElementById('input-postar-senha').value.trim();
+    if (!digitada) return alert('Digite a senha de postagem!');
+
+    const hashDigitado = CryptoJS.SHA256(digitada).toString();
+
+    if (hashSenhaPostar !== '' && hashDigitado === hashSenhaPostar) {
+        localStorage.setItem('modoPostarPermitido', 'true');
+        document.getElementById('etapa-postar-senha').style.display = 'none';
+        document.getElementById('etapa-postar-ativo').style.display = 'block';
+        alert('Modo Postar ativado!');
+        bootstrap.Modal.getInstance(document.getElementById('modalLoja')).hide();
+        processarEstoque(); // Atualiza a tela exibindo os botões "Postar" nos cards
+    } else {
+        alert('Senha de postagem incorreta.');
     }
+}
+
+function desativarModoPostar() {
+    localStorage.removeItem('modoPostarPermitido');
+    document.getElementById('etapa-postar-senha').style.display = 'block';
+    document.getElementById('etapa-postar-ativo').style.display = 'none';
+    alert('Modo Postar desativado.');
+    processarEstoque();
+}
+
+// Funções do Gerador de Ofertas WhatsApp
+function abrirModalGeradorPost(idCarro) {
+    const carro = todosOsCarros.find(c => c.id === idCarro);
+    if (!carro) return;
+
+    carroSelecionadoParaPost = carro;
+    tagPostSelecionada = "";
+
+    document.getElementById('postFraseTopo').value = "";
+    document.getElementById('notificacaoPost').innerText = "";
+
+    document.querySelectorAll('.btn-tag-post').forEach(b => {
+        b.classList.remove('active', 'btn-primary');
+        b.classList.add('btn-outline-secondary');
+    });
+    const btnSemTag = document.getElementById('btn-tag-sem');
+    if (btnSemTag) {
+        btnSemTag.classList.remove('btn-outline-secondary');
+        btnSemTag.classList.add('active', 'btn-primary');
+    }
+
+    atualizarTextoGerado();
+    new bootstrap.Modal(document.getElementById('modalGeradorPost')).show();
+}
+
+function selecionarTagPost(textoTag, elemento) {
+    tagPostSelecionada = textoTag;
+    document.querySelectorAll('.btn-tag-post').forEach(btn => {
+        btn.classList.remove('active', 'btn-primary');
+        btn.classList.add('btn-outline-secondary');
+    });
+    elemento.classList.remove('btn-outline-secondary');
+    elemento.classList.add('active', 'btn-primary');
+    atualizarTextoGerado();
+}
+
+function atualizarTextoGerado() {
+    if (!carroSelecionadoParaPost) return;
+
+    const c = carroSelecionadoParaPost;
+    const fraseTopo = document.getElementById('postFraseTopo').value.trim();
+    let topoFormatado = fraseTopo !== "" ? fraseTopo + "\n\n" : "";
+
+    const mensagemFinal = `${topoFormatado}${tagPostSelecionada}🚗 ${c.modelo}
+📍 KM: ${c.km}
+🎨 Cor: ${c.cor}
+💰 Preço: ${c.valor}
+📊 FIPE: ${c.fipe}
+🤑 Margem: ${c.margem}
+✅ IPVA PAGO!`;
+
+    document.getElementById('textoPostPronto').innerText = mensagemFinal;
+}
+
+function copiarTextoPost() {
+    const texto = document.getElementById('textoPostPronto').innerText;
+    navigator.clipboard.writeText(texto).then(() => {
+        const notificacao = document.getElementById('notificacaoPost');
+        notificacao.innerText = "✓ Mensagem copiada com sucesso!";
+    });
 }
