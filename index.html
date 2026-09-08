@@ -1,255 +1,525 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+
+<html lang="pt-BR">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upload & Câmera - Google Drive</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f7f6;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-    }
-    .card {
-      background: #ffffff;
-      width: 100%;
-      max-width: 480px;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-    }
-    h2 { margin-top: 0; color: #333; font-size: 22px; text-align: center; margin-bottom: 20px; }
-    .field { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; font-size: 14px; }
-    input[type="text"] {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-    .btn-camera {
-      background-color: #28a745;
-      color: white;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      width: 100%;
-      font-weight: bold;
-      margin-bottom: 10px;
-      font-size: 15px;
-    }
-    .btn-camera:hover { background-color: #218838; }
-    .btn-video {
-      background-color: #dc3545;
-      color: white;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      width: 100%;
-      font-weight: bold;
-      margin-bottom: 10px;
-      font-size: 15px;
-    }
-    .btn-video:hover { background-color: #c82333; }
-    .file-input-wrapper { margin-top: 10px; }
-    .file-list {
-      margin-top: 10px;
-      padding: 0;
-      list-style: none;
-      max-height: 150px;
-      overflow-y: auto;
-      border: 1px solid #eee;
-      border-radius: 6px;
-    }
-    .file-list li {
-      padding: 8px 12px;
-      background: #fafafa;
-      border-bottom: 1px solid #eee;
-      font-size: 13px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    button.btn-submit {
-      background-color: #007bff;
-      color: white;
-      padding: 14px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      width: 100%;
-      font-size: 16px;
-      font-weight: bold;
-      margin-top: 15px;
-    }
-    button.btn-submit:hover { background-color: #0056b3; }
-    button:disabled { background-color: #cccccc; cursor: not-allowed; }
-    #status { margin-top: 20px; font-weight: 600; text-align: center; font-size: 14px; word-break: break-word; }
-  </style>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Ariel Unidas Atacado | Premium Car Stock</title>
+
+    
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+
+
+
+    <link rel="stylesheet" href="style.css">
+
 </head>
+
 <body>
 
-  <div class="card">
-    <h2>Captura & Upload de Mídia</h2>
-    
-    <div class="field">
-      <label for="folderName">Nome da Subpasta:</label>
-      <input type="text" id="folderName" placeholder="Ex: Evento_Ao_Vivo" required>
+
+
+    <div class="faixa-novidades-container" id="faixa-letreiro-container" style="display: none;">
+
+        <div class="faixa-novidades-wrapper" id="faixa-letreiro-conteudo"></div>
+
     </div>
 
-    <!-- Capturar Foto/Vídeo na Hora -->
-    <div class="field">
-      <label>Capturar com a Câmera:</label>
-      <input type="file" id="cameraPhoto" accept="image/*" capture="environment" style="display:none">
-      <input type="file" id="cameraVideo" accept="video/*" capture="environment" style="display:none">
-      
-      <button type="button" class="btn-camera" onclick="document.getElementById('cameraPhoto').click()">📸 Tirar Foto na Hora</button>
-      <button type="button" class="btn-video" onclick="document.getElementById('cameraVideo').click()">🎥 Gravar Vídeo na Hora</button>
+
+
+    <nav class="navbar-premium">
+
+        <div class="container d-flex justify-content-between align-items-center px-3">
+
+            <span class="navbar-brand-title" onclick="window.location.reload()">ARIEL UNIDAS</span>
+
+            <button class="btn btn-link text-dark p-0 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuLateral">
+
+                <i class="bi bi-list fs-2"></i>
+
+            </button>
+
+        </div>
+
+    </nav>
+
+
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="menuLateral">
+
+        <div class="offcanvas-header d-flex justify-content-between align-items-center">
+
+            <h5 class="offcanvas-title fs-5">Navegação</h5>
+
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+
+        </div>
+
+        <div class="offcanvas-body">
+
+            <div class="d-flex flex-column h-100 justify-content-between">
+
+                <div>
+
+                    <a href="#" class="menu-link-item active-item" data-bs-dismiss="offcanvas"><i class="bi bi-car-front-fill"></i> Estoque Completo</a>
+
+                    <a href="javascript:void(0)" class="menu-link-item" onclick="setTimeout(abrirModalLoja, 400)" data-bs-dismiss="offcanvas"><i class="bi bi-shop"></i> Área do Cliente (Modo Loja)</a>
+
+                    <a href="javascript:void(0)" class="menu-link-item" onclick="setTimeout(abrirModalEndereco, 400)" data-bs-dismiss="offcanvas"><i class="bi bi-geo-alt-fill"></i> Localização da Loja</a>
+
+                </div>
+
+                <div class="pt-3 border-top border-secondary">
+
+                    <p class="small text-white-50 mb-2 text-center">Atendimento Direto</p>
+
+                    <a href="https://wa.me/5551986597751" target="_blank" class="btn btn-success w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2">
+
+                        <i class="bi bi-whatsapp"></i> WhatsApp Geral
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <!-- Adicionar Arquivos Existentes -->
-    <div class="field file-input-wrapper">
-      <label for="fileInput">Ou escolha arquivos salvos:</label>
-      <input type="file" id="fileInput" multiple accept="image/*,video/*">
+
+
+    <div class="container mb-3 px-3" style="max-width: 600px;">
+
+        <div class="search-wrapper d-flex align-items-center mb-2">
+
+            <i class="bi bi-search text-muted ms-2 fs-6"></i>
+
+            <input type="text" id="campo-pesquisa" class="search-input" placeholder="Buscar marca, modelo, cor ou placa...">
+
+        </div>
+
+        
+
+        <div class="row g-2">
+
+            <div class="col-12">
+
+                <select id="filtro-preco" class="form-select select-premium-filtro">
+
+                    <option value="todos">Todas as faixas de preço</option>
+
+                    <option value="ate-50k">Até R$ 50.000</option>
+
+                    <option value="50k-80k">R$ 50.000 a R$ 80.000</option>
+
+                    <option value="acima-80k">Acima de R$ 80.000</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <!-- Lista de Arquivos Selecionados -->
-    <label>Arquivos para Enviar (<span id="fileCount">0</span>):</label>
-    <ul class="file-list" id="fileList"></ul>
-    
-    <button type="button" id="submitBtn" class="btn-submit" onclick="uploadFiles()">Enviar para o Drive</button>
-    
-    <div id="status"></div>
-  </div>
 
-  <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxy4LhscUuH15SfyP0FvQiqJrxZgxOrt10aTAJUCWpVsJ5CYeipLgLFFmtPCia5LvZm/exec";
 
-    let selectedFiles = [];
+    <div class="container mb-3 px-3">
 
-    // Ouve a seleção de arquivos (Câmera ou Galeria)
-    document.getElementById('cameraPhoto').addEventListener('change', handleFileSelect);
-    document.getElementById('cameraVideo').addEventListener('change', handleFileSelect);
-    document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+        <div id="box-banner-destaque" class="banner-premium" style="display: none;">
 
-    function handleFileSelect(event) {
-      const files = Array.from(event.target.files);
-      
-      files.forEach(file => {
-        // Renomeia capturas da câmera com timestamp único para não duplicar nomes
-        if (!file.name || file.name === "image.jpg" || file.name === "video.mp4" || file.name.startsWith("input")) {
-          const timestamp = new Date().getTime();
-          const ext = file.type.includes("video") ? "mp4" : "jpg";
-          const newFile = new File([file], `Captura_${timestamp}.${ext}`, { type: file.type });
-          selectedFiles.push(newFile);
-        } else {
-          selectedFiles.push(file);
-        }
-      });
+            <div class="row align-items-center g-3">
 
-      updateFileList();
-      event.target.value = ""; // Reseta o input para permitir nova captura
-    }
+                <div class="col-12 col-md-8 text-center text-md-start">
 
-    function updateFileList() {
-      const fileList = document.getElementById('fileList');
-      const fileCount = document.getElementById('fileCount');
-      fileList.innerHTML = "";
-      fileCount.innerText = selectedFiles.length;
+                    <span class="badge bg-warning text-dark fw-bold mb-2 px-3 py-1.5 rounded-pill text-uppercase" style="font-size:0.65rem;">Comunicado</span>
 
-      selectedFiles.forEach((file, index) => {
-        const li = document.createElement('li');
-        const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
-        li.innerHTML = `
-          <span>${file.name} (${sizeMb} MB)</span>
-          <strong style="color:#dc3545; cursor:pointer; padding: 2px 6px;" onclick="removeFile(${index})">✕</strong>
-        `;
-        fileList.appendChild(li);
-      });
-    }
+                    <h5 class="fw-bold mb-1" id="texto-banner-destaque">Carregando informações...</h5>
 
-    function removeFile(index) {
-      selectedFiles.splice(index, 1);
-      updateFileList();
-    }
+                </div>
 
-    async function uploadFiles() {
-      const folderNameInput = document.getElementById('folderName');
-      const submitBtn = document.getElementById('submitBtn');
-      const statusDiv = document.getElementById('status');
+                <div class="col-12 col-md-4 text-center text-md-end" id="container-botao-banner"></div>
 
-      const folderName = folderNameInput.value.trim();
+            </div>
 
-      if (!folderName || selectedFiles.length === 0) {
-        alert('Por favor, digite o nome da pasta e capture ou selecione ao menos um arquivo.');
-        return;
-      }
+        </div>
 
-      submitBtn.disabled = true;
-      submitBtn.innerText = "Enviando...";
-      statusDiv.style.color = "#333";
-      statusDiv.innerText = "Processando e enviando arquivos...";
+    </div>
 
-      try {
-        const fileDataArray = [];
 
-        for (let file of selectedFiles) {
-          const base64 = await readFileAsDataURL(file);
-          fileDataArray.push({
-            fileName: file.name,
-            mimeType: file.type,
-            base64: base64
-          });
-        }
 
-        const payload = {
-          folderName: folderName,
-          files: fileDataArray
-        };
+    <div class="container mb-2 px-3">
 
-        const response = await fetch(SCRIPT_URL, {
-          method: "POST",
-          body: JSON.stringify(payload)
-        });
+        <div class="filter-grid-container">
 
-        const result = await response.json();
+            <button class="btn-filter-pill active" data-cat="todos"><i class="bi bi-grid-fill"></i> Todos</button>
 
-        if (result.status === "success") {
-          statusDiv.style.color = "#28a745";
-          statusDiv.innerText = result.message;
-          folderNameInput.value = '';
-          selectedFiles = [];
-          updateFileList();
-        } else {
-          throw new Error(result.message);
-        }
-      } catch (error) {
-        statusDiv.style.color = "#dc3545";
-        statusDiv.innerText = "Erro no upload: " + error.message;
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerText = "Enviar para o Drive";
-      }
-    }
+            <button class="btn-filter-pill text-warning border-warning-subtle" data-cat="novidades">✨ Novidades</button>
 
-    function readFileAsDataURL(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-        reader.readAsDataURL(file);
-      });
-    }
-  </script>
+            <button class="btn-filter-pill text-danger border-danger-subtle" data-cat="baixou">🔥 Baixou</button>
+
+            <button class="btn-filter-pill" data-cat="hatch">Hatch</button>
+
+            <button class="btn-filter-pill" data-cat="sedan">Sedan</button>
+
+            <button class="btn-filter-pill" data-cat="suv">SUV</button>
+
+            <button class="btn-filter-pill" data-cat="picape">🛻 Picape</button>
+
+            <button class="btn-filter-pill btn-margem-toggle">💰 Melhor Margem</button>
+
+        </div>
+
+        <div class="text-end px-1 mt-1">
+
+            <span id="contador-veiculos" class="text-muted" style="font-size: 0.75rem; font-weight: 600;">Carregando quantidade...</span>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="container mb-5 px-2">
+
+        <div id="lista-carros" class="row row-cols-2 row-cols-md-2 row-cols-lg-3 g-2 g-md-4"></div>
+
+    </div>
+
+
+
+    <div class="modal fade" id="modalLoja" tabindex="-1" aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered mx-3">
+
+            <div class="modal-content">
+
+                <div class="modal-header border-0 p-4 pb-2">
+
+                    <h5 class="modal-title fw-bold fs-5"><i class="bi bi-shop text-warning"></i> Modo Loja Ativo</h5>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+                </div>
+
+                <div class="modal-body p-4 text-center">
+
+                    <div id="etapa-loja-senha">
+
+                        <p class="text-muted small mb-3">Insira o código de segurança para revelar informações internas:</p>
+
+                        <input type="password" id="input-loja-senha" class="form-control loja-input-style mb-3" placeholder="••••">
+
+                        <button class="btn btn-premium-action w-100 py-2 fs-6" id="btn-autenticar-loja">Autenticar Acesso</button>
+
+                    </div>
+
+
+
+                    <div id="etapa-loja-placa" style="display: none;">
+
+                        <div class="d-flex justify-content-between align-items-center alert alert-secondary small py-2 mb-3 rounded-3">
+
+                            <span class="fw-bold" style="font-size:0.75rem;"><i class="bi bi-shield-check text-success"></i> Conectado</span>
+
+                            <button class="btn btn-link p-0 text-danger fw-bold text-decoration-none" style="font-size: 0.75rem;" id="btn-desconectar-loja">Desconectar</button>
+
+                        </div>
+
+                        <p class="text-muted small mb-3">Busque o veículo instantaneamente pela placa do pátio:</p>
+
+                        <input type="text" id="input-loja-placa" class="form-control loja-input-style text-uppercase mb-3" placeholder="ABC1D23" maxlength="7">
+
+                        <button class="btn btn-success fw-bold w-100 py-2 rounded-3" id="btn-consultar-placa">Consultar Dados</button>
+
+                        <div id="resultado-busca-loja" class="mt-3"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="modal fade" id="modalDetalhes" tabindex="-1" aria-hidden="true">
+
+        <div class="modal-dialog modal-lg modal-dialog-centered m-0 m-sm-auto">
+
+            <div class="modal-content rounded-0 rounded-sm-4">
+
+                <button type="button" class="btn-close botao-fechar-modal-mestre" data-bs-dismiss="modal"></button>
+
+                <div class="modal-body p-0">
+
+                    <div id="carrosselVeiculo" class="carousel slide" data-bs-ride="carousel">
+
+                        <div class="carousel-inner" id="modalFotosContainer"></div>
+
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carrosselVeiculo" data-bs-slide="prev">
+
+                            <span class="carousel-control-prev-icon bg-dark rounded-circle" aria-hidden="true"></span>
+
+                        </button>
+
+                        <button class="carousel-control-next" type="button" data-bs-target="#carrosselVeiculo" data-bs-slide="next">
+
+                            <span class="carousel-control-next-icon bg-dark rounded-circle" aria-hidden="true"></span>
+
+                        </button>
+
+                    </div>
+
+                    
+
+                    <div class="p-3 p-md-5">
+
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+
+                            <h4 class="fw-extrabold text-dark m-0" id="modalModelo">Modelo</h4>
+
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1" id="btn-compartilhar-nativo" style="font-size: 0.75rem; font-weight:700;">
+
+                                <i class="bi bi-share-fill"></i> Enviar Ficha
+
+                            </button>
+
+                        </div>
+
+                        
+
+                        <div class="row g-2 text-center mb-3">
+
+                            <div class="col-4">
+
+                                <div class="bg-light p-2 rounded-3">
+
+                                    <span class="text-muted d-block mb-1 font-weight-bold" style="font-size:0.6rem;">REPASSE</span>
+
+                                    <span class="fw-bold text-primary" style="font-size:0.95rem;" id="modalValor">R$ --</span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-4">
+
+                                <div class="bg-light p-2 rounded-3">
+
+                                    <span class="text-muted d-block mb-1 font-weight-bold" style="font-size:0.6rem;">MARGEM</span>
+
+                                    <span class="fw-bold text-success" style="font-size:0.95rem;" id="modalMargem">R$ --</span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-4">
+
+                                <div class="bg-light p-2 rounded-3">
+
+                                    <span class="text-muted d-block mb-1 font-weight-bold" style="font-size:0.6rem;">FIPE</span>
+
+                                    <span class="fw-bold text-secondary" style="font-size:0.95rem;" id="modalFipe">R$ --</span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        
+
+                        <div class="specs-grid mb-3">
+
+                            <div class="spec-pill"><span>Placa</span><div id="modalPlaca">--</div></div>
+
+                            <div class="spec-pill"><span>Cor</span><div id="modalCor" class="text-truncate">--</div></div>
+
+                            <div class="spec-pill"><span>Quilometragem</span><div id="modalKm">--</div></div>
+
+                            <div class="spec-pill"><span>Categoria</span><div id="modalCarroceria" class="text-capitalize">--</div></div>
+
+                        </div>
+
+
+
+                        <!-- Botão Dinâmico do Laudo Cautelar adicionado aqui -->
+
+                        <div id="modalLaudoContainer" class="mb-3"></div>
+
+
+
+                        <div class="mb-2">
+
+                            <h6 class="fw-bold text-dark mb-1" style="font-size:0.85rem;"><i class="bi bi-chat-left-text-fill text-muted me-1"></i> Observações Técnicas:</h6>
+
+                            <div class="p-3 bg-light rounded-3 text-secondary border-start border-primary border-3" style="font-size:0.85rem;" id="modalDescricao">--</div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer border-0 p-3 bg-light d-flex justify-content-between rounded-0 rounded-bottom-sm-4">
+
+                    <button type="button" class="btn btn-outline-secondary rounded-3 px-3 btn-sm" data-bs-dismiss="modal">Fechar</button>
+
+                    <div id="modalBotaoWppContainer" style="width: 65%;"></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="modal fade" id="modalEndereco" tabindex="-1" aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered mx-3">
+
+            <div class="modal-content">
+
+                <div class="modal-header border-0 p-4 pb-0">
+
+                    <h5 class="modal-title fw-bold fs-5"><i class="bi bi-geo-alt-fill text-danger"></i> Onde Estamos</h5>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+                </div>
+
+                <div class="modal-body p-4">
+
+                    <div class="p-3 bg-light rounded-4 border-start border-primary border-4 mb-3">
+
+                        <h6 class="fw-bold text-dark mb-1" style="font-size:0.9rem;">Unidas Atacado Porto Alegre</h6>
+
+                        <p class="mb-2 fw-bold text-dark" style="font-size:1rem;">Av. Sertório, 5686 - Sarandi, Porto Alegre - RS</p>
+
+                        <p class="mb-0 text-muted" style="font-size: 0.75rem;"><i class="bi bi-exclamation-circle-fill text-warning"></i> Importante: Ao chegar no pátio, solicite atendimento exclusivo com o vendedor <strong>Ariel Coimbra</strong>.</p>
+
+                    </div>
+
+                    <div class="p-3 bg-light rounded-4 text-center">
+
+                        <span class="text-muted small d-block mb-1">Contato Direto via WhatsApp:</span>
+
+                        <a href="https://wa.me/5551986597751" target="_blank" class="fw-bold fs-5 text-success text-decoration-none"><i class="bi bi-whatsapp"></i> (51) 98659-7751</a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="app.js?v=2.0"></script>
 
 </body>
+
 </html>
+
+
+
+<!-- Modal do Vídeo -->
+
+<div id="videoModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center; flex-direction:column;">
+
+  
+
+  <!-- Botão Voltar no Topo -->
+
+  <button onclick="fecharVideo()" style="position:absolute; top:20px; left:20px; background:#f0c040; color:#000; border:none; padding:10px 20px; border-radius:25px; font-weight:bold; cursor:pointer;">
+
+    ← Voltar para o site
+
+  </button>
+
+  
+
+  <!-- Container do Vídeo -->
+
+  <div style="width:90%; max-width:800px; height:60vh;">
+
+    <iframe id="videoPlayer" src="" style="width:100%; height:100%; border:none; border-radius:12px;" allowfullscreen></iframe>
+
+  </div>
+
+  
+
+</div>
+
+// Função para abrir o vídeo na própria tela
+
+function abrirVideo(urlVideo) {
+
+  // Ajusta links do YouTube normais para o formato de exibição (embed)
+
+  let embedUrl = urlVideo;
+
+  if (urlVideo.includes('watch?v=')) {
+
+    embedUrl = urlVideo.replace('watch?v=', 'embed/');
+
+  } else if (urlVideo.includes('youtu.be/')) {
+
+    embedUrl = urlVideo.replace('youtu.be/', 'www.youtube.com/embed/');
+
+  }
+
+
+
+  document.getElementById('videoPlayer').src = embedUrl;
+
+  document.getElementById('videoModal').style.display = 'flex';
+
+}
+
+
+
+// Função para fechar e pausar o vídeo
+
+function fecharVideo() {
+
+  document.getElementById('videoPlayer').src = '';
+
+  document.getElementById('videoModal').style.display = 'none';
+
+}
