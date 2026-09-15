@@ -1,11 +1,15 @@
-// URL da sua planilha CSV publicada na web
-const URL_PLANILHA_CSV = 'SUA_URL_DA_PLANILHA_CSV_AQUI';
+// ATENÇÃO: Insira aqui a URL pública do CSV da sua planilha Google
+const URL_PLANILHA_CSV = '';
 
 let dadosEstoque = [];
-let modoLojaAtivo = false;
 
 document.addEventListener('DOMContentLoaded', () => {
-    carregarDadosPlanilha();
+    if (URL_PLANILHA_CSV && URL_PLANILHA_CSV.trim() !== '') {
+        carregarDadosPlanilha();
+    } else {
+        // Dados de teste para o site abrir imediatamente se a URL estiver vazia
+        usarDadosExemplo();
+    }
     configurarEventos();
 });
 
@@ -17,7 +21,7 @@ function carregarDadosPlanilha() {
         complete: (results) => {
             const linhas = results.data;
             
-            // Processa o Link do Grupo VIP na célula L2 (Linha Índice 1, Coluna Índice 11)
+            // Puxa o link do Grupo VIP na célula L2 (Linha 2, Coluna L/12)
             if (linhas.length > 1 && linhas[1][11]) {
                 const linkGrupo = linhas[1][11].trim();
                 const btnGrupo = document.getElementById('linkGrupoWhatsapp');
@@ -26,7 +30,6 @@ function carregarDadosPlanilha() {
                 }
             }
 
-            // Converte cabeçalhos e linhas para o formato de estoque
             if (linhas.length > 0) {
                 const headers = linhas[0];
                 const registros = linhas.slice(1);
@@ -45,8 +48,18 @@ function carregarDadosPlanilha() {
         },
         error: (err) => {
             console.error("Erro ao carregar planilha:", err);
+            usarDadosExemplo();
         }
     });
+}
+
+function usarDadosExemplo() {
+    dadosEstoque = [
+        { Placa: 'ABC1D23', Modelo: 'Chevrolet Onix 1.0 Turbo', Marca: 'Chevrolet', Ano: '2022/2023', KM: '35.000', Valor: '68.900', Novidade: 'SIM', Baixou: 'NAO', Laudo: 'SIM', Foto1: 'https://via.placeholder.com/400x300?text=Chevrolet+Onix' },
+        { Placa: 'XYZ9K88', Modelo: 'Hyundai Creta 1.6 Pulse', Marca: 'Hyundai', Ano: '2021/2021', KM: '48.000', Valor: '89.900', Novidade: 'NAO', Baixou: 'SIM', Laudo: 'SIM', Foto1: 'https://via.placeholder.com/400x300?text=Hyundai+Creta' }
+    ];
+    renderizarEstoque(dadosEstoque);
+    renderizarTicker(dadosEstoque);
 }
 
 function renderizarEstoque(lista) {
@@ -97,7 +110,7 @@ function renderizarTicker(lista) {
 
     const novidades = lista.filter(item => item.Novidade === 'SIM' || item.Baixou === 'SIM');
     if (novidades.length === 0) {
-        tickerContainer.innerHTML = `<span class="item-ticker">Confira nosso estoque completo atualizado!</span>`;
+        tickerContainer.innerHTML = `<span class="item-ticker"><i class="bi bi-star-fill text-warning me-1"></i> Estoque atualizado Porto Alegre</span>`;
         return;
     }
 
@@ -128,7 +141,7 @@ function configurarEventos() {
             const areaTexto = document.getElementById('textoGeradoPost');
             areaTexto.select();
             document.execCommand('copy');
-            alert('Texto copiado com sucesso!');
+            alert('Texto copiado!');
         });
     }
 }
@@ -164,13 +177,20 @@ function abrirDetalhesVeiculo(placa) {
             <div class="p-3 bg-light rounded-3 mb-3">
                 <div class="row g-2 font-sm">
                     <div class="col-6"><strong>Quilometragem:</strong> ${item.KM || '-'} km</div>
-                    <div class="col-6"><strong>Cor:</strong> ${item.Cor || '-'}</div>
-                    <div class="col-6"><strong>Cambio:</strong> ${item.Cambio || '-'}</div>
-                    <div class="col-6"><strong>Combustível:</strong> ${item.Combustivel || '-'}</div>
+                    <div class="col-6"><strong>Ano:</strong> ${item.Ano || '-'}</div>
                 </div>
             </div>
+            
+            <div class="p-3 bg-dark text-white rounded-3 mb-3" style="font-size: 0.85rem;">
+                <div class="fw-bold text-primary mb-1"><i class="bi bi-geo-alt-fill me-1"></i> Unidas Atacado Porto Alegre</div>
+                <div class="text-white-50 mb-2">Av. Sertório, 5686 - Sarandi, Porto Alegre - RS</div>
+                <div class="p-2 rounded bg-secondary bg-opacity-25 text-warning fw-semibold mb-0" style="font-size: 0.78rem;">
+                    Importante: Ao chegar no pátio, solicite atendimento exclusivo com o vendedor Ariel Coimbra.
+                </div>
+            </div>
+
             <a href="https://wa.me/5551986597751?text=Olá Ariel, tenho interesse no veículo: ${item.Modelo} (${item.Ano})" target="_blank" class="btn btn-success w-100 fw-bold py-2">
-                <i class="bi bi-whatsapp me-2"></i>Falar com Ariel Coimbra
+                <i class="bi bi-whatsapp me-2"></i>Falar no WhatsApp: (51) 98659-7751
             </a>
         `;
     }
