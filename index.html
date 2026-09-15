@@ -3,327 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo de Repasse - Unidas Atacado</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Catálogo de Veículos</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- CryptoJS (SHA-256) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <!-- PapaParse (CSV) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <style>
-        body { background-color: #f8fafc; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: #1e293b; }
-        .navbar-brand { font-weight: 800; letter-spacing: -0.5px; }
-        
-        /* Skeleton Loading */
-        .skeleton { background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 8px; }
-        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        .skeleton-img { height: 180px; width: 100%; }
-        .skeleton-text { height: 14px; margin-bottom: 8px; width: 80%; }
-        .skeleton-text.short { width: 40%; }
-
-        /* Estilo dos Cards (PC) */
-        .card-vehicle { background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
-        .card-vehicle:hover { transform: translateY(-3px); box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1); }
-        .img-vehicle-wrapper { position: relative; height: 190px; background-color: #0f172a; overflow: hidden; }
-        .img-vehicle { width: 100%; height: 100%; object-fit: cover; }
-        
-        /* Tags dos Veículos */
-        .tag-status { position: absolute; top: 10px; left: 10px; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        .tag-status-disponivel { background-color: rgba(16, 185, 129, 0.9); color: #fff; }
-        .tag-status-vendido { background-color: rgba(239, 68, 68, 0.9); color: #fff; }
-        
-        .tag-feature { position: absolute; top: 10px; right: 10px; padding: 3px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 700; }
-        .tag-feature-novidade { background-color: #3b82f6; color: #fff; }
-        .tag-feature-baixou { background-color: #f59e0b; color: #fff; }
-        .tag-feature-laudo { background-color: #059669; color: #fff; top: 36px; }
-
-        .card-vehicle-body { padding: 14px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .vehicle-title { font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
-        
-        .specs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
-        .spec-pill { background-color: #f1f5f9; padding: 4px 8px; border-radius: 6px; font-size: 0.72rem; color: #475569; }
-        .spec-pill span { font-weight: 600; display: block; font-size: 0.62rem; color: #94a3b8; text-transform: uppercase; }
-
-        .price-container { border-top: 1px solid #f1f5f9; padding-top: 10px; }
-        .price-label { font-size: 0.65rem; color: #64748b; font-weight: 700; text-transform: uppercase; display: block; }
-        .price-value { font-size: 1.1rem; font-weight: 800; color: #1e3a8a; }
-
-        /* Filtros Modificados para Quebrar Linha sem Rolagem */
-        .filter-grid-container { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-start; }
-        .btn-filter-pill { border-radius: 20px; font-size: 0.78rem; font-weight: 600; padding: 6px 12px; border: 1px solid #cbd5e1; background: #fff; color: #475569; white-space: nowrap; flex: 1 1 auto; text-align: center; }
-        .btn-filter-pill.active { background-color: #1e3a8a; color: #fff; border-color: #1e3a8a; }
-        .active-margem { background-color: #059669 !important; color: #fff !important; border-color: #059669 !important; }
-
-        /* Letreiro / Ticker */
-        .ticker-wrap { width: 100%; overflow: hidden; background: #0f172a; color: #fff; padding: 8px 0; font-size: 0.82rem; }
-        .ticker-move { display: inline-block; white-space: nowrap; animation: ticker 35s linear infinite; }
-        .ticker-move:hover { animation-play-state: paused; }
-        .item-ticker { display: inline-block; margin-right: 30px; cursor: pointer; }
-        @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-50%, 0, 0); } }
-
-        .modal-carousel-img { width: 100%; height: 280px; object-fit: cover; border-radius: 12px; }
-
-        /* MELHORIAS EXCLUSIVAS PARA CELULAR (TELAS < 768px) */
-        @media (max-width: 767.98px) {
-            .container { padding-left: 12px; padding-right: 12px; }
-            .navbar-brand { font-size: 1.05rem; }
-            
-            /* Ajuste dos botões de categorias no celular */
-            .filter-grid-container { gap: 5px; }
-            .btn-filter-pill { font-size: 0.72rem; padding: 5px 9px; }
-
-            /* Ajuste na imagem e layout do card */
-            .img-vehicle-wrapper { height: 135px; }
-            .card-vehicle { border-radius: 12px; }
-            .card-vehicle-body { padding: 10px; }
-            .vehicle-title { font-size: 0.82rem; line-height: 1.25; margin-bottom: 6px; }
-            
-            /* Ajustes nos badges e tags */
-            .tag-status { font-size: 0.58rem; padding: 3px 6px; top: 6px; left: 6px; }
-            .tag-feature { font-size: 0.55rem; padding: 2px 5px; top: 6px; right: 6px; }
-            .tag-feature-laudo { top: 28px; }
-
-            /* Grid interno do card mais compacto */
-            .specs-grid { gap: 4px; margin-bottom: 8px; }
-            .spec-pill { padding: 3px 5px; font-size: 0.65rem; border-radius: 4px; }
-            .spec-pill span { font-size: 0.55rem; }
-
-            .price-container { padding-top: 6px; }
-            .price-label { font-size: 0.55rem; }
-            .price-value { font-size: 0.95rem; }
-
-            .btn-acessar-card { font-size: 0.7rem; padding: 3px 8px; }
-            .modal-carousel-img { height: 210px; }
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Style CSS -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Header / Navbar -->
-    <nav class="navbar navbar-dark bg-dark sticky-top shadow-sm py-2">
-        <div class="container d-flex justify-content-between align-items-center">
-            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
-                <i class="bi bi-car-front-fill text-warning fs-4"></i>
-                <span>ARIEL <span class="text-warning">UNIDAS</span></span>
-            </a>
-            <button class="btn btn-outline-light btn-sm border-0 px-2" onclick="abrirModalOpcoesAdmin()" title="Opções Administrativas">
-                <i class="bi bi-three-dots-vertical fs-5"></i>
+    <!-- FAIXA DE NOVIDADES (TICKER NO TOPO) -->
+    <div class="faixa-novidades-container">
+        <div class="faixa-novidades-wrapper" id="tickerNovidades">
+            <span class="item-ticker"><i class="bi bi-star-fill text-warning me-1"></i> Carregando novidades do estoque...</span>
+        </div>
+    </div>
+
+    <!-- NAVBAR PREMIUM -->
+    <nav class="navbar navbar-premium">
+        <div class="container d-flex align-items-center justify-content-between">
+            <span class="navbar-brand-title" onclick="window.location.reload();">
+                <i class="bi bi-car-front-fill me-2 text-primary"></i>Estoque de Veículos
+            </span>
+            <button class="btn text-dark fs-4 p-0 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuOffcanvas" aria-controls="menuOffcanvas">
+                <i class="bi bi-list"></i>
             </button>
         </div>
     </nav>
 
-    <!-- Faixa de Banner Destaque -->
-    <div id="box-banner-destaque" class="bg-primary text-white py-2 text-center" style="display: none;">
-        <div class="container d-flex flex-wrap align-items-center justify-content-center gap-2">
-            <span id="texto-banner-destaque" class="fw-semibold small"></span>
-            <div id="container-botao-banner"></div>
+    <!-- GAVETA LATERAL DO MENU (OFFCANVAS) -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="menuOffcanvas" aria-labelledby="menuOffcanvasLabel">
+        <div class="offcanvas-header border-bottom border-secondary">
+            <h5 class="offcanvas-title fw-bold" id="menuOffcanvasLabel">Menu</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column justify-content-between">
+            <div>
+                <a href="#" id="linkGrupoWhatsapp" target="_blank" class="menu-link-item active-item">
+                    <i class="bi bi-whatsapp"></i> Entrar no Grupo VIP
+                </a>
+                <a href="#" class="menu-link-item" data-bs-toggle="modal" data-bs-target="#modalLoja">
+                    <i class="bi bi-shield-lock"></i> Painel da Loja
+                </a>
+            </div>
+
+            <!-- CARD DE ENDEREÇO E CONTATO -->
+            <div class="p-3 mt-4 rounded-3 text-white" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.85rem;">
+                <div class="fw-bold mb-1 text-primary"><i class="bi bi-geo-alt-fill me-1"></i> Unidas Atacado Porto Alegre</div>
+                <p class="mb-2 text-white-50" style="font-size: 0.8rem;">Av. Sertório, 5686 - Sarandi, Porto Alegre - RS</p>
+                
+                <div class="p-2 rounded bg-dark mb-2 border border-secondary" style="font-size: 0.78rem; line-height: 1.3;">
+                    <strong class="text-warning">Importante:</strong> Ao chegar no pátio, solicite atendimento exclusivo com o vendedor <strong>Ariel Coimbra</strong>.
+                </div>
+
+                <div class="d-flex align-items-center gap-2 pt-1">
+                    <i class="bi bi-telephone-fill text-success"></i>
+                    <a href="https://wa.me/5551986597751" target="_blank" class="text-white text-decoration-none fw-semibold">
+                        (51) 98659-7751
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Letreiro Ticker (Novidades) -->
-    <div id="faixa-letreiro-container" class="ticker-wrap" style="display: none;">
-        <div id="faixa-letreiro-conteudo" class="ticker-move"></div>
-    </div>
-
-    <!-- Filtros e Busca -->
-    <div class="container my-3 my-md-4">
-        <div class="row g-2 align-items-center mb-3">
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="container my-4">
+        <!-- BUSCA E SELETORES -->
+        <div class="row g-2 mb-3">
             <div class="col-12 col-md-6">
-                <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0 pe-1"><i class="bi bi-search text-muted"></i></span>
-                    <input type="text" id="campo-pesquisa" class="form-control border-start-0 ps-2" placeholder="Buscar por modelo, cor ou placa...">
+                <div class="search-wrapper d-flex align-items-center">
+                    <i class="bi bi-search text-muted ms-2"></i>
+                    <input type="text" id="inputBusca" class="search-input" placeholder="Buscar por modelo, marca ou ano...">
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <select id="filtro-preco" class="form-select text-secondary font-semibold" style="font-size: 0.85rem;">
-                    <option value="todos">Todos os Preços</option>
-                    <option value="ate-50k">Até R$ 50.000</option>
-                    <option value="50k-80k">R$ 50.000 a R$ 80.000</option>
-                    <option value="acima-80k">Acima de R$ 80.000</option>
+                <select id="selectOrdenacao" class="form-select select-premium-filtro">
+                    <option value="padrao">Ordenar por: Padrão</option>
+                    <option value="menor-preco">Menor Preço</option>
+                    <option value="maior-preco">Maior Preço</option>
+                    <option value="maior-margem">Maior Margem</option>
                 </select>
             </div>
             <div class="col-6 col-md-3">
-                <button class="btn btn-filter-pill btn-margem-toggle w-100" type="button">
-                    <i class="bi bi-graph-up-arrow"></i> Maior Margem
-                </button>
+                <select id="selectCarroceria" class="form-select select-premium-filtro">
+                    <option value="todas">Todas Carrocerias</option>
+                    <option value="Hatch">Hatch</option>
+                    <option value="Sedan">Sedan</option>
+                    <option value="SUV">SUV</option>
+                    <option value="Picape">Picape</option>
+                </select>
             </div>
         </div>
 
-        <!-- Carrocerias / Categorias (Exibição Total na Tela Sem Scroll) -->
-        <div class="filter-grid-container mb-2">
-            <button class="btn btn-filter-pill active" data-cat="todos">Todos</button>
-            <button class="btn btn-filter-pill" data-cat="novidades">✨ Novidades</button>
-            <button class="btn btn-filter-pill" data-cat="baixou">🔥 Baixou</button>
-            <button class="btn btn-filter-pill" data-cat="hatch">Hatch</button>
-            <button class="btn btn-filter-pill" data-cat="sedan">Sedan</button>
-            <button class="btn btn-filter-pill" data-cat="suv">SUV</button>
-            <button class="btn btn-filter-pill" data-cat="picape">Picape</button>
+        <!-- FILTROS DE CATEGORIA (PILLS) -->
+        <div class="filter-grid-container mb-4" id="containerFiltros">
+            <button class="btn-filter-pill active" data-filtro="todos">Todos</button>
+            <button class="btn-filter-pill btn-margem-toggle" id="btnFiltroMargem"><i class="bi bi-graph-up-arrow"></i> Com Margem</button>
+            <button class="btn-filter-pill" data-filtro="novidade">Novidades</button>
+            <button class="btn-filter-pill" data-filtro="baixou">Baixou Preço</button>
+            <button class="btn-filter-pill" data-filtro="laudo">Laudo Aprovado</button>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center mb-2 mb-md-3">
-            <span id="contador-veiculos" class="text-muted small fw-semibold">Carregando estoque...</span>
-        </div>
-
-        <!-- Grid de Veículos: 2 Colunas no Celular / 4 Colunas no PC -->
-        <div id="lista-carros" class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-2 g-md-3">
-            <!-- Os cards serão injetados via JavaScript -->
+        <!-- GRID DE VEÍCULOS (CARDS / SKELETONS) -->
+        <div class="row g-3" id="gridVeiculos">
+            <!-- Skeletons dinâmicos carregados pelo JS -->
+            <div class="col-6 col-md-4 col-lg-3 skeleton-card">
+                <div class="card-vehicle">
+                    <div class="skeleton skeleton-img"></div>
+                    <div class="card-vehicle-body">
+                        <div class="skeleton skeleton-text"></div>
+                        <div class="skeleton skeleton-text short"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-3 skeleton-card">
+                <div class="card-vehicle">
+                    <div class="skeleton skeleton-img"></div>
+                    <div class="card-vehicle-body">
+                        <div class="skeleton skeleton-text"></div>
+                        <div class="skeleton skeleton-text short"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Modal 3 Pontinhos: Opções de Administração (Modo Loja & Postar) -->
+    <!-- MODAL PAINEL DA LOJA / POSTAR -->
     <div class="modal fade" id="modalLoja" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 rounded-4 shadow">
-                <div class="modal-header bg-dark text-white rounded-top-4">
-                    <h5 class="modal-title fw-bold fs-6"><i class="bi bi-shield-lock-fill"></i> Painel Administrativo</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <!-- Nav Tabs para Modos -->
-                    <ul class="nav nav-pills nav-justified mb-3" id="adminTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active fw-bold small" id="tab-loja-btn" data-bs-toggle="pill" data-bs-target="#tab-loja" type="button">🏪 Modo Loja</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link fw-bold small" id="tab-postar-btn" data-bs-toggle="pill" data-bs-target="#tab-postar" type="button">📢 Modo Postar</button>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content" id="adminTabsContent">
-                        <!-- Conteúdo Modo Loja -->
-                        <div class="tab-pane fade show active" id="tab-loja" role="tabpanel">
-                            <div id="etapa-loja-senha">
-                                <label class="form-label small fw-bold">Digite a Senha do Modo Loja:</label>
-                                <input type="password" id="input-loja-senha" class="form-control mb-2" placeholder="Senha mestre...">
-                                <button class="btn btn-dark w-100 fw-bold btn-sm rounded-3 py-2" id="btn-autenticar-loja">Acessar Modo Loja</button>
-                            </div>
-                            <div id="etapa-loja-placa" style="display: none;">
-                                <div class="alert alert-success py-2 small">✓ Modo Loja Ativo</div>
-                                <label class="form-label small fw-bold">Buscar Placa Completa:</label>
-                                <div class="input-group mb-3">
-                                    <input type="text" id="input-loja-placa" class="form-control text-uppercase" placeholder="Ex: ABC1D23">
-                                    <button class="btn btn-primary" id="btn-consultar-placa"><i class="bi bi-search"></i></button>
-                                </div>
-                                <div id="resultado-busca-loja"></div>
-                                <hr>
-                                <button class="btn btn-outline-danger w-100 btn-sm rounded-3" id="btn-desconectar-loja">Sair do Modo Loja</button>
-                            </div>
-                        </div>
-
-                        <!-- Conteúdo Modo Postar -->
-                        <div class="tab-pane fade" id="tab-postar" role="tabpanel">
-                            <div id="etapa-postar-senha">
-                                <label class="form-label small fw-bold">Digite a Senha de Postagem:</label>
-                                <input type="password" id="input-postar-senha" class="form-control mb-2" placeholder="Senha da Coluna U...">
-                                <button class="btn btn-success w-100 fw-bold btn-sm rounded-3 py-2" onclick="verificarSenhaPostar()">Ativar Botões de Postar</button>
-                            </div>
-                            <div id="etapa-postar-ativo" style="display: none;">
-                                <div class="alert alert-success py-2 small">✓ Modo Postar Ativado! Os botões "Postar" estão visíveis nos cards.</div>
-                                <button class="btn btn-outline-danger w-100 btn-sm rounded-3" onclick="desativarModoPostar()">Desativar Modo Postar</button>
-                            </div>
-                        </div>
-                    </div>
+            <div class="modal-content p-3">
+                <button type="button" class="btn-close botao-fechar-modal-mestre" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-body text-center">
+                    <h5 class="fw-bold mb-3">Acesso Painel da Loja</h5>
+                    <input type="password" id="inputSenhaLoja" class="form-control loja-input-style mb-3" placeholder="Digite a senha">
+                    <button class="btn btn-premium-action w-100" id="btnEntrarLoja">Acessar</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Gerador de Oferta WhatsApp -->
+    <!-- MODAL GERADOR DE POST WHATSAPP -->
     <div class="modal fade" id="modalGeradorPost" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 rounded-4 shadow">
-                <div class="modal-header bg-dark text-white rounded-top-4">
-                    <h5 class="modal-title fw-bold fs-6"><i class="bi bi-whatsapp text-success"></i> Gerador de Oferta WhatsApp</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Frase Personalizada do Topo (Opcional):</label>
-                        <input type="text" id="postFraseTopo" class="form-control form-control-sm" placeholder="Ex: Fala cliente! Dá uma olhada nessa oportunidade:" oninput="atualizarTextoGerado()">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Destaque da Mensagem:</label>
-                        <div class="d-flex gap-2">
-                            <button id="btn-tag-sem" class="btn btn-sm btn-primary btn-tag-post flex-fill" onclick="selecionarTagPost('', this)">Sem Destaque</button>
-                            <button class="btn btn-sm btn-outline-secondary btn-tag-post flex-fill" onclick="selecionarTagPost('⭐ NOVIDADE NA ÁREA! ⭐\n\n', this)">⭐ Novidade</button>
-                            <button class="btn btn-sm btn-outline-secondary btn-tag-post flex-fill" onclick="selecionarTagPost('🔥 BAIXOU DE PREÇO! 🔥\n\n', this)">🔥 Baixou</button>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small">Mensagem Formatada:</label>
-                        <div id="textoPostPronto" class="p-3 bg-light border rounded-3 text-start font-monospace small" style="white-space: pre-wrap;"></div>
-                    </div>
-
-                    <button class="btn btn-success w-100 fw-bold py-2 rounded-3" onclick="copiarTextoPost()">
-                        <i class="bi bi-clipboard-check-fill"></i> Copiar para o WhatsApp
+            <div class="modal-content p-3">
+                <button type="button" class="btn-close botao-fechar-modal-mestre" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-body">
+                    <h5 class="fw-bold mb-3">Gerador de Oferta WhatsApp</h5>
+                    <textarea id="textoGeradoPost" class="form-control mb-3" rows="8" readonly></textarea>
+                    <button class="btn btn-success w-100 fw-bold py-2" id="btnCopiarPost">
+                        <i class="bi bi-clipboard-check me-1"></i> Copiar Texto
                     </button>
-                    <div id="notificacaoPost" class="text-success text-center fw-bold small mt-2"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Detalhes do Veículo -->
+    <!-- MODAL DETALHES DO VEÍCULO -->
     <div class="modal fade" id="modalDetalhes" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0 rounded-4 shadow">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold text-dark" id="modalModelo">Modelo do Carro</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-3 p-md-4">
-                    <div class="row g-3">
-                        <div class="col-12 col-md-7">
-                            <div id="carouselFotos" class="carousel slide" data-bs-ride="carousel">
-                                <div class="carousel-inner" id="modalFotosContainer"></div>
-                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselFotos" data-bs-slide="prev">
-                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                </button>
-                                <button class="carousel-control-next" type="button" data-bs-target="#carouselFotos" data-bs-slide="next">
-                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                </button>
-                            </div>
+            <div class="modal-content overflow-hidden">
+                <button type="button" class="btn-close botao-fechar-modal-mestre" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-body p-0">
+                    <div id="carouselFotosDetalhes" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner" id="carouselInnerFotos">
+                            <!-- Fotos injetadas via JS -->
                         </div>
-                        <div class="col-12 col-md-5 d-flex flex-column justify-content-between">
-                            <div>
-                                <div class="bg-light p-3 rounded-3 mb-3">
-                                    <span class="text-muted small d-block">VALOR DE REPASSE</span>
-                                    <h3 class="fw-extrabold text-primary m-0" id="modalValor">R$ 00.000</h3>
-                                    <div class="d-flex justify-content-between mt-2 small">
-                                        <span>FIPE: <strong id="modalFipe">R$ 00.000</strong></span>
-                                        <span class="text-success">Margem: <strong id="modalMargem">R$ 00.000</strong></span>
-                                    </div>
-                                </div>
-                                <ul class="list-group list-group-flush small mb-3">
-                                    <li class="list-group-item d-flex justify-content-between px-0"><span>Placa:</span> <strong id="modalPlaca">*****00</strong></li>
-                                    <li class="list-group-item d-flex justify-content-between px-0"><span>Cor:</span> <strong id="modalCor">N/I</strong></li>
-                                    <li class="list-group-item d-flex justify-content-between px-0"><span>Quilometragem:</span> <strong id="modalKm">N/I</strong></li>
-                                    <li class="list-group-item d-flex justify-content-between px-0"><span>Carroceria:</span> <strong id="modalCarroceria">N/I</strong></li>
-                                </ul>
-                                <p id="modalDescricao" class="text-muted small mb-3"></p>
-                            </div>
-                            <div>
-                                <div id="modalLaudoContainer" class="mb-2"></div>
-                                <div class="d-flex gap-2">
-                                    <button id="btn-compartilhar-nativo" class="btn btn-outline-secondary w-50 py-2 rounded-3 small fw-bold">
-                                        <i class="bi bi-share"></i> Ficha
-                                    </button>
-                                    <div id="modalBotaoWppContainer" class="w-50"></div>
-                                </div>
-                            </div>
-                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselFotosDetalhes" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselFotosDetalhes" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="p-4" id="conteudoDetalhesVeiculo">
+                        <!-- Detalhes do veículo injetados via JS -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Scripts Bootstrap e Aplicação -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
